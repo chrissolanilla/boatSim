@@ -16,7 +16,7 @@ const fuelUsedHelp = 'Fuel used (gal) = burn rate (GPH) * engines * time (hours)
 const fuelWeightHelp = 'Fuel weight uses ~6.1 lb/gal as a rough gasoline density.'
 
 const recommendedFuelHelp =
-	'Recommended fuel = fuel used * 1.33. This is a common 1/3 safety buffer rule of thumb for contingencies; tune it to your risk tolerance and conditions.'
+	'Recommended fuel = fuel used * 1.33. Common 1/3 safety buffer rule of thumb for contingencies.'
 </script>
 
 <template>
