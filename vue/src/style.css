@@ -1,0 +1,91 @@
+:root {
+	--primary-color: #ff7ac6;
+	--secondary-color: #bf95f9;
+	--background-color: #181723;
+	--surface-color: #222133;
+	--surface-color-2: #2b2940;
+	--text-color: #ffffff;
+	--muted-text: rgba(255, 255, 255, 0.72);
+	--blue: #2fc1e8;
+	--green: #3fd38c;
+	--orange: #ffb14a;
+	--red: #ff6e7a;
+	--border: rgba(255, 255, 255, 0.08);
+	--shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	background: var(--background-color);
+	color: var(--text-color);
+	font-family: Inter, system-ui, sans-serif;
+	min-height: 100%;
+}
+
+body {
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+}
+
+a {
+	color: inherit;
+}
+
+.app-shell {
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+	padding: 1rem;
+}
+
+.page-wrap {
+	width: min(1180px, calc(100% - 2rem));
+	margin: 0 auto;
+	padding: 1.25rem 0 2rem;
+}
+
+.page-title {
+	margin: 0 0 0.35rem;
+	font-size: clamp(1.8rem, 2.5vw, 2.6rem);
+}
+
+.page-subtitle {
+	margin: 0 0 1.5rem;
+	color: var(--muted-text);
+	line-height: 1.5;
+}
+
+.grid {
+	display: grid;
+	gap: 1rem;
+}
+
+.grid-2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+	.grid-2,
+	.grid-3 {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* For Firefox */
+input[type='number'] {
+	-moz-appearance: textfield;
+}
+
+/* Webkit browsers like Safari and Chrome */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
