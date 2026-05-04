@@ -22,7 +22,7 @@ const slipHelp =
 		One of the best pages in the whole tool because the math is actually defendable.
 	</p>
 
-	<div class="grid grid-2">
+	<div class="page-stack">
 		<SectionCard title="Inputs" subtitle="Enter your setup numbers.">
 			<NumberInput v-model="store.propSlip.pitch" label="Pitch (inches)" step="0.5" />
 			<NumberInput v-model="store.propSlip.rpm" label="Engine RPM" step="50" />
@@ -31,7 +31,7 @@ const slipHelp =
 		</SectionCard>
 
 		<SectionCard title="Results" subtitle="Live calculated values.">
-			<div class="grid grid-3">
+			<div class="metric-stack">
 				<MetricCard
 					label="Prop shaft RPM"
 					:value="store.propShaftRPM.toFixed(0)"

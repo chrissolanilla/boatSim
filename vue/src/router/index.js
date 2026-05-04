@@ -6,15 +6,25 @@ import FuelView from '../views/calculator/FuelView.vue'
 import ConditionsView from '../views/calculator/ConditionsView.vue'
 import SessionsView from '../views/SessionsView.vue'
 
+export const plannedCalculatorRoutes = [
+	{
+		name: 'outdrive-spacer',
+		path: '/calculator/outdrive-spacer',
+		label: 'Outdrive Spacer'
+	}
+]
+
+const routes = [
+	{ path: '/', name: 'home', component: HomeView },
+	{ path: '/calculator/prop-slip', name: 'prop-slip', component: PropSlipView },
+	{ path: '/calculator/fuel', name: 'fuel', component: FuelView },
+	{ path: '/calculator/conditions', name: 'conditions', component: ConditionsView },
+	{ path: '/sessions', name: 'sessions', component: SessionsView }
+]
+
 const router = createRouter({
-	history: createWebHistory(),
-	routes: [
-		{ path: '/', name: 'home', component: HomeView },
-		{ path: '/calculator/prop-slip', name: 'prop-slip', component: PropSlipView },
-		{ path: '/calculator/fuel', name: 'fuel', component: FuelView },
-		{ path: '/calculator/conditions', name: 'conditions', component: ConditionsView },
-		{ path: '/sessions', name: 'sessions', component: SessionsView }
-	]
+	history: createWebHistory(import.meta.env.BASE_URL),
+	routes
 })
 
 export default router

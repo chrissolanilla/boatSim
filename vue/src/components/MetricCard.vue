@@ -21,6 +21,7 @@ defineProps({
 
 <style scoped>
 .metric {
+	min-width: 0;
 	padding: 1rem;
 	border-radius: 18px;
 	background: rgba(255, 255, 255, 0.04);
@@ -53,9 +54,10 @@ defineProps({
 }
 
 .value {
-	font-size: 1.65rem;
+	font-size: clamp(1.35rem, 6vw, 1.65rem);
 	font-weight: 800;
 	letter-spacing: -0.02em;
+	overflow-wrap: anywhere;
 }
 
 .metric.good .value {

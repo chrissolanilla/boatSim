@@ -47,6 +47,7 @@ const inputValue = computed({
 	flex-direction: column;
 	gap: 0.45rem;
 	margin-bottom: 0.95rem;
+	width: 100%;
 }
 
 span {
@@ -55,6 +56,8 @@ span {
 }
 
 input {
+	width: 100%;
+	min-height: 44px;
 	background: rgba(0, 0, 0, 0.18);
 	color: white;
 	border: 1px solid rgba(255, 255, 255, 0.1);

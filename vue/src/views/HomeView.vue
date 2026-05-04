@@ -28,9 +28,9 @@ const roughnessHelp =
 	<h1 class="page-title">Boat Sim Dashboard</h1>
 	<p class="page-subtitle">Overall readout. Use the edit links to change inputs.</p>
 
-	<div class="grid grid-2">
+	<div class="page-stack">
 		<SectionCard title="Prop Slip" subtitle="Inputs and live calculated slip.">
-			<div class="grid grid-3">
+			<div class="metric-stack">
 				<MetricCard
 					label="Prop shaft RPM"
 					:value="store.propShaftRPM.toFixed(0)"
@@ -49,13 +49,13 @@ const roughnessHelp =
 				/>
 			</div>
 			<div class="status" :class="store.slipTone">{{ store.slipMessage }}</div>
-			<div class="actions">
-				<RouterLink class="action" to="/calculator/prop-slip">Edit prop slip</RouterLink>
+			<div class="button-row actions">
+				<RouterLink class="button-link" to="/calculator/prop-slip">Edit prop slip</RouterLink>
 			</div>
 		</SectionCard>
 
 		<SectionCard title="Fuel" subtitle="Race planning numbers.">
-			<div class="grid grid-2">
+			<div class="metric-stack narrow">
 				<MetricCard label="Distance" :value="`${store.distance.toFixed(1)} mi`" :help="distanceHelp" />
 				<MetricCard label="Race time" :value="`${store.raceMinutes.toFixed(1)} min`" :help="raceTimeHelp" />
 				<MetricCard label="Fuel used" :value="`${store.fuelUsed.toFixed(1)} gal`" :help="fuelUsedHelp" />
@@ -67,13 +67,13 @@ const roughnessHelp =
 					:help="recommendedFuelHelp"
 				/>
 			</div>
-			<div class="actions">
-				<RouterLink class="action" to="/calculator/fuel">Edit fuel</RouterLink>
+			<div class="button-row actions">
+				<RouterLink class="button-link" to="/calculator/fuel">Edit fuel</RouterLink>
 			</div>
 		</SectionCard>
 
 		<SectionCard title="Conditions" subtitle="Guidance only, not exact physics.">
-			<div class="grid grid-2">
+			<div class="metric-stack narrow">
 				<MetricCard
 					label="Roughness"
 					:value="store.roughness.toFixed(2)"
@@ -83,8 +83,8 @@ const roughnessHelp =
 			</div>
 			<div class="note" :class="store.weatherTone">{{ store.weatherMessage }}</div>
 			<div class="note" :class="store.waveTone">{{ store.waveMessage }}</div>
-			<div class="actions">
-				<RouterLink class="action" to="/calculator/conditions">Edit conditions</RouterLink>
+			<div class="button-row actions">
+				<RouterLink class="button-link" to="/calculator/conditions">Edit conditions</RouterLink>
 			</div>
 		</SectionCard>
 	</div>
@@ -136,18 +136,5 @@ const roughnessHelp =
 
 .actions {
 	margin-top: 0.25rem;
-}
-
-.action {
-	display: inline-block;
-	padding: 0.55rem 0.8rem;
-	border-radius: 14px;
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	background: rgba(0, 0, 0, 0.18);
-	text-decoration: none;
-}
-
-.action:hover {
-	border-color: rgba(47, 193, 232, 0.42);
 }
 </style>

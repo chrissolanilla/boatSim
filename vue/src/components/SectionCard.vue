@@ -20,11 +20,11 @@ defineProps({
 
 <style lang="scss" scoped>
 .card {
+	min-width: 0;
 	background: linear-gradient(180deg, var(--surface-color), var(--surface-color-2));
 	border: 1px solid var(--border);
 	border-radius: 22px;
 	box-shadow: var(--shadow);
-    //overflow: hidden;
 }
 
 .card-head {
@@ -44,6 +44,20 @@ p {
 }
 
 .card-body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.75rem;
 	padding: 1rem;
+}
+
+@media (max-width: 680px) {
+	.card {
+		border-radius: 18px;
+	}
+
+	.card-head,
+	.card-body {
+		padding-inline: 0.85rem;
+	}
 }
 </style>

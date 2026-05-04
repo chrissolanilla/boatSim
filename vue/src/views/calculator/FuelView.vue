@@ -23,7 +23,7 @@ const recommendedFuelHelp =
 	<h1 class="page-title">Fuel</h1>
 	<p class="page-subtitle">Simple race planning numbers. good for owner / throttleman / crew.</p>
 
-	<div class="grid grid-2">
+	<div class="page-stack">
 		<SectionCard title="Inputs" subtitle="Race length and burn assumptions.">
 			<NumberInput v-model="store.fuel.laps" label="Laps" step="1" />
 			<NumberInput v-model="store.fuel.lapMiles" label="Lap miles" step="0.1" />
@@ -33,7 +33,7 @@ const recommendedFuelHelp =
 		</SectionCard>
 
 		<SectionCard title="Results" subtitle="Fuel load and race time.">
-			<div class="grid grid-2">
+			<div class="metric-stack narrow">
 				<MetricCard label="Distance" :value="`${store.distance.toFixed(1)} mi`" :help="distanceHelp" />
 				<MetricCard label="Race time" :value="`${store.raceMinutes.toFixed(1)} min`" :help="raceTimeHelp" />
 				<MetricCard label="Fuel used" :value="`${store.fuelUsed.toFixed(1)} gal`" :help="fuelUsedHelp" />

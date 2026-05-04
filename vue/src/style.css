@@ -12,6 +12,11 @@
 	--red: #ff6e7a;
 	--border: rgba(255, 255, 255, 0.08);
 	--shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+	--page-max: 1180px;
+}
+
+* {
+	box-sizing: border-box;
 }
 
 html,
@@ -34,17 +39,24 @@ a {
 	color: inherit;
 }
 
+button,
+input,
+select,
+textarea {
+	font: inherit;
+}
+
 .app-shell {
-	min-height: 100dvh;
+	flex: 1;
+	width: 100%;
 	display: flex;
 	flex-direction: column;
-	padding: 1rem;
 }
 
 .page-wrap {
-	width: min(1180px, calc(100% - 2rem));
+	width: min(var(--page-max), calc(100% - 2rem));
 	margin: 0 auto;
-	padding: 1.25rem 0 2rem;
+	padding: 1.25rem 0 2.25rem;
 }
 
 .page-title {
@@ -58,23 +70,109 @@ a {
 	line-height: 1.5;
 }
 
-.grid {
-	display: grid;
+.page-stack,
+.card-stack,
+.metric-stack,
+.button-row {
+	display: flex;
 	gap: 1rem;
 }
 
-.grid-2 {
-	grid-template-columns: repeat(2, minmax(0, 1fr));
+.page-stack,
+.card-stack,
+.metric-stack {
+	align-items: stretch;
 }
 
-.grid-3 {
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+.page-stack {
+	flex-wrap: wrap;
 }
 
-@media (max-width: 900px) {
-	.grid-2,
-	.grid-3 {
-		grid-template-columns: 1fr;
+.page-stack > * {
+	flex: 1 1 360px;
+	min-width: 0;
+}
+
+.card-stack,
+.metric-stack {
+	flex-wrap: wrap;
+}
+
+.card-stack > * {
+	flex: 1 1 300px;
+	min-width: 0;
+}
+
+.metric-stack > * {
+	flex: 1 1 180px;
+	min-width: 0;
+}
+
+.metric-stack.narrow > * {
+	flex-basis: 150px;
+}
+
+.button-row {
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.button-link,
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 44px;
+	padding: 0.65rem 0.9rem;
+	border-radius: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(0, 0, 0, 0.18);
+	color: inherit;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.button-link:hover,
+.button:hover {
+	border-color: rgba(47, 193, 232, 0.42);
+}
+
+#app {
+	min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 680px) {
+	.page-wrap {
+		width: min(100% - 1rem, var(--page-max));
+		padding-top: 1rem;
+	}
+
+	.page-title {
+		font-size: clamp(1.55rem, 8vw, 2rem);
+	}
+
+	.page-subtitle {
+		margin-bottom: 1rem;
+	}
+
+	.page-stack,
+	.card-stack,
+	.metric-stack {
+		gap: 0.8rem;
+	}
+
+	.page-stack > *,
+	.card-stack > *,
+	.metric-stack > * {
+		flex-basis: 100%;
+	}
+
+	.button-row,
+	.button-link,
+	.button {
+		width: 100%;
 	}
 }
 

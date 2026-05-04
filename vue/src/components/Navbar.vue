@@ -1,35 +1,47 @@
 <script setup>
 import { RouterLink, useRoute } from 'vue-router'
+import { plannedCalculatorRoutes } from '../router'
 
 const route = useRoute()
 
-const links = [
+const activeFeatureRoutes = [
 	{ to: '/', label: 'Home' },
 	{ to: '/calculator/prop-slip', label: 'Prop Slip' },
 	{ to: '/calculator/fuel', label: 'Fuel' },
 	{ to: '/calculator/conditions', label: 'Conditions' },
 	{ to: '/sessions', label: 'Sessions' }
 ]
+
+const plannedFeatureRoutes = plannedCalculatorRoutes
 </script>
 
 <template>
-	<nav class="nav">
+	<nav class="nav" aria-label="Main navigation">
 		<div class="brand">
 			<div class="brand-mark" />
 			<div>
-				<h1>Boat Sim</h1>
+				<h1>GC Boat Sim</h1>
+				<p>MTI 482 · twin Mercury 1100s</p>
 			</div>
 		</div>
 
 		<div class="nav-links">
 			<RouterLink
-				v-for="link in links"
+				v-for="link in activeFeatureRoutes"
 				:key="link.to"
 				:to="link.to"
 				:class="{ active: route.path === link.to }"
 			>
 				{{ link.label }}
 			</RouterLink>
+			<span
+				v-for="link in plannedFeatureRoutes"
+				:key="link.path"
+				class="planned-link"
+				aria-disabled="true"
+			>
+				{{ link.label }} soon
+			</span>
 		</div>
 	</nav>
 </template>
@@ -37,25 +49,92 @@ const links = [
 <style lang="scss" scoped>
 h1 {
 	margin: 0;
+	font-size: 1.25rem;
 }
 
 nav {
-	background-color: var(--secondary-color);
-	text-align: center;
-	padding: 0.5rem;
-    //-webkit-text-stroke: 0.5px black;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.85rem max(1rem, calc((100vw - var(--page-max)) / 2));
+	background: var(--secondary-color);
+	color: #171522;
+}
 
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	min-width: 0;
+}
+
+.brand-mark {
+	width: 2.25rem;
+	height: 2.25rem;
+	flex: 0 0 auto;
+	border-radius: 999px;
+	// background: var(--primary-color);
+	background: #ff00d4;
+	background: radial-gradient(circle, rgba(255, 0, 212, 1) 0%, rgba(0, 11, 92, 1) 50%, rgba(0, 0, 0, 1) 100%);
+}
+
+p {
+	margin: 0.1rem 0 0;
+	font-size: 0.82rem;
+	font-weight: 600;
+	opacity: 0.78;
 }
 
 .nav-links {
 	display: flex;
-	gap: 1rem;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.45rem;
+	flex-wrap: wrap;
+	font-weight: 700;
+	min-width: 0;
+}
+
+.nav-links a,
+.planned-link {
+	display: inline-flex;
+	align-items: center;
 	justify-content: center;
-	font-weight: 500;
+	min-height: 42px;
+	padding: 0.55rem 0.7rem;
+	border-radius: 999px;
+	text-decoration: none;
+}
+
+.nav-links a {
+	background: rgba(255, 255, 255, 0.16);
+}
+
+.planned-link {
+	background: rgba(0, 0, 0, 0.12);
+	opacity: 0.65;
 }
 
 .active {
-	text-decoration: underline;
-	text-underline-offset: 0.25em;
+	background: rgba(255, 255, 255, 0.38) !important;
+}
+
+@media (max-width: 760px) {
+	nav {
+		align-items: flex-start;
+		flex-direction: column;
+		padding: 0.85rem 0.75rem;
+	}
+
+	.nav-links {
+		width: 100%;
+		justify-content: flex-start;
+	}
+
+	.nav-links a,
+	.planned-link {
+		flex: 1 1 135px;
+	}
 }
 </style>

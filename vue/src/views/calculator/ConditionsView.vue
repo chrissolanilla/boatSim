@@ -22,7 +22,7 @@ const waterHelp =
 	<h1 class="page-title">Conditions</h1>
 	<p class="page-subtitle">This page is estimates and setup notes, not exact physics.</p>
 
-	<div class="grid grid-2">
+	<div class="page-stack">
 		<SectionCard title="Inputs" subtitle="Basic air and water conditions.">
 			<NumberInput v-model="store.conditions.tempF" label="Air temp (F)" step="1" />
 			<NumberInput v-model="store.conditions.humidity" label="Humidity (%)" step="1" />
@@ -32,7 +32,7 @@ const waterHelp =
 		</SectionCard>
 
 		<SectionCard title="Readout" subtitle="Use as guidance, not exact truth.">
-			<div class="grid grid-2">
+			<div class="metric-stack narrow">
 				<MetricCard
 					label="Roughness"
 					:value="store.roughness.toFixed(2)"
@@ -95,5 +95,11 @@ const waterHelp =
 
 .note-body {
 	color: var(--muted-text);
+}
+
+.flex {
+	display: flex;
+	flex-direction: column;
+    gap: 1rem;
 }
 </style>
