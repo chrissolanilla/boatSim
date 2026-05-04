@@ -98,11 +98,12 @@ p {
 }
 
 .nav-links a {
-	background: rgba(255, 255, 255, 0.16);
+	background: rgba(255, 255, 255, 0.60);
 }
 
 .active {
-	background: rgba(255, 255, 255, 0.38) !important;
+	// background: rgba(255, 255, 255, 0.38) !important;
+	background: var(--primary-color) !important;
 }
 
 @media (max-width: 760px) {
