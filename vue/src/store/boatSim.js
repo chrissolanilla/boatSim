@@ -8,7 +8,11 @@ import {
 	calcRecommendedFuel,
 	calcSlipPercent,
 	calcTheoreticalSpeed,
-	calcTimeHours
+	calcTimeHours,
+	calculateWaveRoughness,
+	calculateWindComponents,
+	evaluateSpacerSetup,
+	evaluateWindWaveSetup
 } from '../utils/formulas'
 
 function toNumber(v) {
@@ -80,8 +84,18 @@ export const useBoatSimStore = defineStore('boatSim', {
 			tempF: 85,
 			humidity: 65,
 			windSpeed: 12,
+			windDirection: 0,
+			courseHeading: 0,
 			waveHeight: 1.5,
-			wavePeriod: 4
+			wavePeriod: 4,
+			waveAngle: 0
+		},
+		spacer: {
+			spacerSize: 1,
+			waterCondition: 'flat',
+			goal: 'top-speed',
+			slipPercent: '',
+			trim: 'neutral'
 		}
 	}),
 	getters: {
@@ -104,10 +118,31 @@ export const useBoatSimStore = defineStore('boatSim', {
 		raceMinutes: (s) => s.timeHours * 60,
 
 		roughness: (s) => {
-			const wavePeriod = toNumber(s.conditions.wavePeriod)
-			if (wavePeriod <= 0) return 0
-			return toNumber(s.conditions.waveHeight) / wavePeriod
+			return calculateWaveRoughness({
+				waveHeight: toNumber(s.conditions.waveHeight),
+				wavePeriod: toNumber(s.conditions.wavePeriod)
+			})
 		},
+		windComponents: (s) => calculateWindComponents({
+			windSpeed: toNumber(s.conditions.windSpeed),
+			windDirection: toNumber(s.conditions.windDirection),
+			courseHeading: toNumber(s.conditions.courseHeading)
+		}),
+		windWaveEvaluation: (s) => evaluateWindWaveSetup({
+			windSpeed: toNumber(s.conditions.windSpeed),
+			windDirection: toNumber(s.conditions.windDirection),
+			courseHeading: toNumber(s.conditions.courseHeading),
+			waveHeight: toNumber(s.conditions.waveHeight),
+			wavePeriod: toNumber(s.conditions.wavePeriod),
+			waveAngle: toNumber(s.conditions.waveAngle)
+		}),
+		spacerEvaluation: (s) => evaluateSpacerSetup({
+			spacerSize: toNumber(s.spacer.spacerSize),
+			waterCondition: s.spacer.waterCondition,
+			goal: s.spacer.goal,
+			slipPercent: s.spacer.slipPercent,
+			trim: s.spacer.trim
+		}),
 		weatherMessage: (s) => {
 			const t = toNumber(s.conditions.tempF)
 			const h = toNumber(s.conditions.humidity)

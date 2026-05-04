@@ -1,18 +1,17 @@
 <script setup>
 import { RouterLink, useRoute } from 'vue-router'
-import { plannedCalculatorRoutes } from '../router'
 
 const route = useRoute()
 
 const activeFeatureRoutes = [
 	{ to: '/', label: 'Home' },
 	{ to: '/calculator/prop-slip', label: 'Prop Slip' },
+	{ to: '/calculator/outdrive-spacer', label: 'Spacer' },
 	{ to: '/calculator/fuel', label: 'Fuel' },
 	{ to: '/calculator/conditions', label: 'Conditions' },
+	{ to: '/calculator/wind', label: 'Wind' },
 	{ to: '/sessions', label: 'Sessions' }
 ]
-
-const plannedFeatureRoutes = plannedCalculatorRoutes
 </script>
 
 <template>
@@ -34,14 +33,6 @@ const plannedFeatureRoutes = plannedCalculatorRoutes
 			>
 				{{ link.label }}
 			</RouterLink>
-			<span
-				v-for="link in plannedFeatureRoutes"
-				:key="link.path"
-				class="planned-link"
-				aria-disabled="true"
-			>
-				{{ link.label }} soon
-			</span>
 		</div>
 	</nav>
 </template>
@@ -96,8 +87,7 @@ p {
 	min-width: 0;
 }
 
-.nav-links a,
-.planned-link {
+.nav-links a {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -109,11 +99,6 @@ p {
 
 .nav-links a {
 	background: rgba(255, 255, 255, 0.16);
-}
-
-.planned-link {
-	background: rgba(0, 0, 0, 0.12);
-	opacity: 0.65;
 }
 
 .active {
@@ -132,8 +117,7 @@ p {
 		justify-content: flex-start;
 	}
 
-	.nav-links a,
-	.planned-link {
+	.nav-links a {
 		flex: 1 1 135px;
 	}
 }

@@ -22,6 +22,10 @@ const recommendedFuelHelp =
 
 const roughnessHelp =
 	'Heuristic: roughness = wave height (ft) / wave period (sec). Higher values mean steeper, shorter-period chop.\n\nRule of thumb bands here: <0.30 manageable, 0.30-0.60 moderate, >=0.60 steep/rough.'
+const spacerHelp =
+	'Rule-of-thumb spacer guidance. Confirm with GPS speed, RPM, and prop slip before trusting a setup change.'
+const windHelp =
+	'Wind and wave guidance uses course-relative components and a simple wave height / period roughness score.'
 </script>
 
 <template>
@@ -85,6 +89,52 @@ const roughnessHelp =
 			<div class="note" :class="store.waveTone">{{ store.waveMessage }}</div>
 			<div class="button-row actions">
 				<RouterLink class="button-link" to="/calculator/conditions">Edit conditions</RouterLink>
+			</div>
+		</SectionCard>
+
+		<SectionCard title="Outdrive Spacer" subtitle="M8 spacer guidance without fake precision.">
+			<div class="metric-stack narrow">
+				<MetricCard
+					label="Spacer"
+					:value="`${Number(store.spacer.spacerSize).toFixed(2)} in`"
+					:help="spacerHelp"
+				/>
+				<MetricCard
+					label="Ventilation risk"
+					:value="store.spacerEvaluation.ventilationRisk"
+					:tone="store.spacerEvaluation.tone"
+					:help="spacerHelp"
+				/>
+			</div>
+			<div class="note" :class="store.spacerEvaluation.tone">
+				{{ store.spacerEvaluation.recommendation }}
+			</div>
+			<div class="button-row actions">
+				<RouterLink class="button-link" to="/calculator/outdrive-spacer">Edit spacer</RouterLink>
+			</div>
+		</SectionCard>
+
+		<SectionCard title="Wind & Compass" subtitle="Course-relative wind and wave readout.">
+			<div class="metric-stack narrow">
+				<MetricCard
+					label="Head/tail"
+					:value="`${store.windWaveEvaluation.headwindComponent.toFixed(1)} mph`"
+					:help="windHelp"
+				/>
+				<MetricCard
+					label="Crosswind"
+					:value="`${store.windWaveEvaluation.crosswindComponent.toFixed(1)} mph`"
+					:help="windHelp"
+				/>
+				<MetricCard
+					label="Water label"
+					:value="store.windWaveEvaluation.conditionLabel"
+					:tone="store.windWaveEvaluation.tone"
+					:help="windHelp"
+				/>
+			</div>
+			<div class="button-row actions">
+				<RouterLink class="button-link" to="/calculator/wind">Edit wind</RouterLink>
 			</div>
 		</SectionCard>
 	</div>
