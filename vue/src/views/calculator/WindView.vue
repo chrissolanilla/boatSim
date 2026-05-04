@@ -39,11 +39,11 @@ const waveHelp =
 
 	<div class="page-stack">
 		<SectionCard title="Inputs" subtitle="Use compass degrees. Wind direction means where the wind comes from.">
-			<NumberInput v-model="store.conditions.windSpeed" label="Wind speed (mph)" :min="0" :max="80" step="1" />
+			<NumberInput v-model="store.conditions.windSpeed" label="Wind speed (mph)" :min="0"  step="1" />
 			<NumberInput v-model="store.conditions.windDirection" label="Wind direction from (degrees)" :min="0" :max="359" step="1" />
 			<NumberInput v-model="store.conditions.courseHeading" label="Course heading (degrees)" :min="0" :max="359" step="1" />
-			<NumberInput v-model="store.conditions.waveHeight" label="Wave height (ft)" :min="0" :max="10" step="0.1" />
-			<NumberInput v-model="store.conditions.wavePeriod" label="Wave period (sec)" :min="0" :max="30" step="0.1" />
+			<NumberInput v-model="store.conditions.waveHeight" label="Wave height (ft)" :min="0"  step="0.1" />
+			<NumberInput v-model="store.conditions.wavePeriod" label="Wave period (sec)" :min="0"  step="0.1" />
 			<NumberInput v-model="store.conditions.waveAngle" label="Wave angle to course (degrees)" :min="0" :max="90" step="1" />
 		</SectionCard>
 

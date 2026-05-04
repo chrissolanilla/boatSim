@@ -86,6 +86,7 @@ textarea {
 
 .page-stack {
 	flex-wrap: wrap;
+	margin-bottom: 1rem;
 }
 
 .page-stack > * {

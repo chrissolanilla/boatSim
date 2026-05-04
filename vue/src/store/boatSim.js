@@ -9,6 +9,7 @@ import {
 	calcSlipPercent,
 	calcTheoreticalSpeed,
 	calcTimeHours,
+	buildRaceEstimateSnapshot,
 	calculateWaveRoughness,
 	calculateWindComponents,
 	evaluateSpacerSetup,
@@ -65,6 +66,31 @@ function roughnessToTone(roughness) {
 	return 'good'
 }
 
+function copyData(value) {
+	return JSON.parse(JSON.stringify(value))
+}
+
+function sessionComparison(session) {
+	const actualTime = toNumber(session.actualTimeSeconds)
+	const estimatedTime = toNumber(session.estimatedTimeSeconds)
+	const actualSpeed = toNumber(session.actualSpeedMph)
+	const estimatedSpeed = toNumber(session.estimatedSpeedMph)
+	const timeErrorSeconds = actualTime > 0 && estimatedTime > 0 ? actualTime - estimatedTime : null
+	const speedErrorMph = actualSpeed > 0 && estimatedSpeed > 0 ? actualSpeed - estimatedSpeed : null
+	const percentError = actualTime > 0 && estimatedTime > 0 ? (timeErrorSeconds / actualTime) * 100 : null
+
+	return {
+		timeErrorSeconds,
+		speedErrorMph,
+		percentError
+	}
+}
+
+function csvValue(value) {
+	const text = Array.isArray(value) ? value.join(' | ') : String(value ?? '')
+	return `"${text.replace(/"/g, '""')}"`
+}
+
 export const useBoatSimStore = defineStore('boatSim', {
 	state: () => ({
 		propSlip: {
@@ -96,7 +122,8 @@ export const useBoatSimStore = defineStore('boatSim', {
 			goal: 'top-speed',
 			slipPercent: '',
 			trim: 'neutral'
-		}
+		},
+		sessions: []
 	}),
 	getters: {
 		propShaftRPM: (s) => calcPropShaftRPM(toNumber(s.propSlip.rpm), toNumber(s.propSlip.gearRatio)),
@@ -106,16 +133,32 @@ export const useBoatSimStore = defineStore('boatSim', {
 				toNumber(s.propSlip.rpm),
 				toNumber(s.propSlip.gearRatio)
 			),
-		slip: (s) => calcSlipPercent(s.theoreticalSpeed, toNumber(s.propSlip.gpsSpeed)),
-		slipTone: (s) => slipToTone(s.slip),
-		slipMessage: (s) => slipToMessage(s.slip),
+		slip() {
+			return calcSlipPercent(this.theoreticalSpeed, toNumber(this.propSlip.gpsSpeed))
+		},
+		slipTone() {
+			return slipToTone(this.slip)
+		},
+		slipMessage() {
+			return slipToMessage(this.slip)
+		},
 
 		distance: (s) => calcDistance(toNumber(s.fuel.laps), toNumber(s.fuel.lapMiles)),
-		timeHours: (s) => calcTimeHours(s.distance, toNumber(s.fuel.avgSpeed)),
-		fuelUsed: (s) => calcFuelUsed(toNumber(s.fuel.burnRate), toNumber(s.fuel.engines), s.timeHours),
-		fuelWeight: (s) => calcFuelWeight(s.fuelUsed),
-		recommendedFuel: (s) => calcRecommendedFuel(s.fuelUsed),
-		raceMinutes: (s) => s.timeHours * 60,
+		timeHours() {
+			return calcTimeHours(this.distance, toNumber(this.fuel.avgSpeed))
+		},
+		fuelUsed() {
+			return calcFuelUsed(toNumber(this.fuel.burnRate), toNumber(this.fuel.engines), this.timeHours)
+		},
+		fuelWeight() {
+			return calcFuelWeight(this.fuelUsed)
+		},
+		recommendedFuel() {
+			return calcRecommendedFuel(this.fuelUsed)
+		},
+		raceMinutes() {
+			return this.timeHours * 60
+		},
 
 		roughness: (s) => {
 			return calculateWaveRoughness({
@@ -148,13 +191,165 @@ export const useBoatSimStore = defineStore('boatSim', {
 			const h = toNumber(s.conditions.humidity)
 			return weatherToMessage(t, h)
 		},
-		waveMessage: (s) => roughnessToMessage(s.roughness),
+		waveMessage() {
+			return roughnessToMessage(this.roughness)
+		},
 		weatherTone: (s) => {
 			const t = toNumber(s.conditions.tempF)
 			const h = toNumber(s.conditions.humidity)
 			return weatherToTone(t, h)
 		},
-		waveTone: (s) => roughnessToTone(s.roughness),
-		roughnessTone: (s) => roughnessToTone(s.roughness)
+		waveTone() {
+			return roughnessToTone(this.roughness)
+		},
+		roughnessTone() {
+			return roughnessToTone(this.roughness)
+		},
+		raceEstimate() {
+			return buildRaceEstimateSnapshot({
+				propSlip: this.propSlip,
+				fuel: this.fuel,
+				conditions: this.conditions,
+				spacer: this.spacer,
+				theoreticalSpeed: this.theoreticalSpeed,
+				slipPercent: this.slip,
+				fuelWeight: this.fuelWeight,
+				spacerEvaluation: this.spacerEvaluation,
+				windWaveEvaluation: this.windWaveEvaluation
+			})
+		},
+		sessionsWithComparisons: (s) => s.sessions.map((session) => ({
+			...session,
+			...sessionComparison(session)
+		}))
+	},
+	actions: {
+		createRaceEstimateSession() {
+			const estimate = this.raceEstimate
+			const id = `session-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+			const snapshot = {
+				propSlip: copyData(this.propSlip),
+				fuel: copyData(this.fuel),
+				conditions: copyData(this.conditions),
+				spacer: copyData(this.spacer),
+				slipPercent: this.slip,
+				theoreticalSpeed: this.theoreticalSpeed,
+				fuelUsed: this.fuelUsed,
+				fuelWeight: this.fuelWeight,
+				recommendedFuel: this.recommendedFuel,
+				windWaveEvaluation: copyData(this.windWaveEvaluation),
+				spacerEvaluation: copyData(this.spacerEvaluation)
+			}
+
+			const session = {
+				id,
+				createdAt: new Date().toISOString(),
+				estimatedSpeedMph: estimate.estimatedSpeedMph,
+				theoreticalSpeedMph: estimate.theoreticalSpeedMph,
+				netProgressSpeedMph: estimate.netProgressSpeedMph,
+				estimatedTimeSeconds: estimate.estimatedTimeSeconds,
+				distanceMiles: estimate.distanceMiles,
+				isOutsideModelRange: estimate.isOutsideModelRange,
+				modelRangeWarnings: copyData(estimate.modelRangeWarnings),
+				confidenceLabel: estimate.confidenceLabel,
+				confidenceTone: estimate.confidenceTone,
+				breakdown: copyData(estimate.breakdown),
+				warnings: copyData(estimate.warnings),
+				notes: copyData(estimate.notes),
+				snapshot,
+				actualTimeSeconds: '',
+				actualSpeedMph: '',
+				actualNotes: '',
+				completedAt: ''
+			}
+
+			this.sessions.unshift(session)
+			return session
+		},
+		updateSessionActuals(sessionId, actuals) {
+			const session = this.sessions.find((item) => item.id === sessionId)
+			if (!session) return
+			const actualTimeSeconds = actuals.actualTimeSeconds === '' ? '' : toNumber(actuals.actualTimeSeconds)
+			let actualSpeedMph = actuals.actualSpeedMph === '' ? '' : toNumber(actuals.actualSpeedMph)
+
+			if (!actualSpeedMph && actualTimeSeconds > 0 && session.distanceMiles > 0) {
+				actualSpeedMph = session.distanceMiles / (actualTimeSeconds / 3600)
+			}
+
+			session.actualTimeSeconds = actualTimeSeconds
+			session.actualSpeedMph = actualSpeedMph
+			session.actualNotes = actuals.actualNotes ?? session.actualNotes
+			session.completedAt = actualTimeSeconds || actualSpeedMph || session.actualNotes ? new Date().toISOString() : ''
+		},
+		deleteSession(sessionId) {
+			this.sessions = this.sessions.filter((session) => session.id !== sessionId)
+		},
+		clearSessions() {
+			this.sessions = []
+		},
+		exportSessionsCsv() {
+			const headers = [
+				'session id', 'created at', 'distance miles', 'estimated speed mph', 'net progress speed mph', 'theoretical speed mph', 'estimated time seconds',
+				'actual speed mph', 'actual time seconds', 'time error seconds', 'speed error mph', 'percent error',
+				'pitch', 'rpm', 'gear ratio', 'gps speed', 'slip percent', 'spacer size', 'water condition',
+				'goal', 'trim', 'temp', 'humidity', 'wind speed', 'wind direction', 'course heading',
+				'headwind component', 'crosswind component', 'wave height', 'wave period', 'wave angle',
+				'wave roughness', 'fuel gallons estimated', 'fuel gallons recommended', 'confidence',
+				'outside model range', 'model range warnings', 'warnings', 'notes', 'actual notes'
+			]
+
+			const rows = this.sessionsWithComparisons.map((session) => {
+				const snapshot = session.snapshot || {}
+				const propSlip = snapshot.propSlip || {}
+				const fuel = snapshot.fuel || {}
+				const conditions = snapshot.conditions || {}
+				const spacer = snapshot.spacer || {}
+				const wind = snapshot.windWaveEvaluation || {}
+				return [
+					session.id,
+					session.createdAt,
+					session.distanceMiles,
+					session.estimatedSpeedMph,
+					session.netProgressSpeedMph,
+					session.theoreticalSpeedMph,
+					session.estimatedTimeSeconds,
+					session.actualSpeedMph,
+					session.actualTimeSeconds,
+					session.timeErrorSeconds,
+					session.speedErrorMph,
+					session.percentError,
+					propSlip.pitch,
+					propSlip.rpm,
+					propSlip.gearRatio,
+					propSlip.gpsSpeed,
+					snapshot.slipPercent,
+					spacer.spacerSize,
+					spacer.waterCondition,
+					spacer.goal,
+					spacer.trim,
+					conditions.tempF,
+					conditions.humidity,
+					conditions.windSpeed,
+					conditions.windDirection,
+					conditions.courseHeading,
+					wind.headwindComponent,
+					wind.crosswindComponent,
+					conditions.waveHeight,
+					conditions.wavePeriod,
+					conditions.waveAngle,
+					wind.roughness,
+					snapshot.fuelUsed,
+					snapshot.recommendedFuel,
+					session.confidenceLabel,
+					session.isOutsideModelRange,
+					session.modelRangeWarnings,
+					session.warnings,
+					session.notes,
+					session.actualNotes
+				].map(csvValue).join(',')
+			})
+
+			return [headers.map(csvValue).join(','), ...rows].join('\n')
+		}
 	}
 })
