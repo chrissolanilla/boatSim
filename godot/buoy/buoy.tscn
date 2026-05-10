@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://c7mn0uo5ixu7h"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t1bfe"]
+albedo_color = Color(1, 0, 0, 1)
+
+[node name="Buoy" type="Node3D" unique_id=744715852]
+
+[node name="CSGSphere3D" type="CSGSphere3D" parent="." unique_id=62872735]
+material = SubResource("StandardMaterial3D_t1bfe")

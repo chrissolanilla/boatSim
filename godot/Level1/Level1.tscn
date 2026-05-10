@@ -1,0 +1,120 @@
+[gd_scene format=3 uid="uid://dmif80ynvofu4"]
+
+[ext_resource type="Script" uid="uid://cy3l7uhu0nryo" path="res://Level1/level_1.gd" id="1_4bnji"]
+[ext_resource type="PackedScene" uid="uid://c7mn0uo5ixu7h" path="res://buoy/buoy.tscn" id="1_yr1vs"]
+[ext_resource type="PackedScene" uid="uid://cyqcpfasocaus" path="res://Player/Player.tscn" id="2_axawr"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yr1vs"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_axawr"]
+sky_material = SubResource("ProceduralSkyMaterial_yr1vs")
+
+[sub_resource type="Environment" id="Environment_4bnji"]
+background_mode = 2
+sky = SubResource("Sky_axawr")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Level1" type="Node3D" unique_id=1519677643]
+script = ExtResource("1_4bnji")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1997583716]
+environment = SubResource("Environment_4bnji")
+
+[node name="Player" parent="." unique_id=191308926 instance=ExtResource("2_axawr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0504665, 0, 3.1714969)
+
+[node name="Buoys" type="Node3D" parent="." unique_id=792981978]
+
+[node name="Buoy" parent="Buoys" unique_id=744715852 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy2" parent="Buoys" unique_id=1316431327 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy3" parent="Buoys" unique_id=49358534 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy4" parent="Buoys" unique_id=1892554526 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy5" parent="Buoys" unique_id=1544716527 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy6" parent="Buoys" unique_id=328825107 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy7" parent="Buoys" unique_id=83471169 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy8" parent="Buoys" unique_id=692631688 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy9" parent="Buoys" unique_id=586418598 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy10" parent="Buoys" unique_id=1081890655 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy11" parent="Buoys" unique_id=130450514 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy12" parent="Buoys" unique_id=1919768269 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy13" parent="Buoys" unique_id=1551616876 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy14" parent="Buoys" unique_id=1894719128 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy15" parent="Buoys" unique_id=1459072199 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy16" parent="Buoys" unique_id=1269758069 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy17" parent="Buoys" unique_id=726042598 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy18" parent="Buoys" unique_id=1163831578 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy19" parent="Buoys" unique_id=335150702 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="Buoy20" parent="Buoys" unique_id=1174072191 instance=ExtResource("1_yr1vs")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1075508801]
+visible = false
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer" unique_id=1441808625]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -155.0
+offset_top = -60.0
+offset_right = 194.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Number of Buoys"
+
+[node name="LineEdit" type="LineEdit" parent="CanvasLayer" unique_id=359081638]
+anchors_preset = -1
+anchor_left = 0.694
+anchor_top = 0.763
+anchor_right = 0.694
+anchor_bottom = 0.763
+offset_left = -412.48804
+offset_top = -195.42401
+offset_right = -183.48804
+offset_bottom = -149.42401
+grow_horizontal = 2
+grow_vertical = 0
+placeholder_text = "Enter number of buyos"

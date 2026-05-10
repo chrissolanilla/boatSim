@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://d3og6bd3ibusq"]
+
+[ext_resource type="Script" uid="uid://dw8chu0trc7hw" path="res://MainMenu/main_menu.gd" id="1_otibh"]
+
+[node name="MainMenu" type="Control" unique_id=419191259]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_otibh")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=191759004]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.41092625, 0.0020509476, 0.72438574, 1)
+
+[node name="RichTextLabel" type="RichTextLabel" parent="." unique_id=1321321968]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -279.5
+offset_top = -72.0
+offset_right = 279.5
+offset_bottom = 72.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/normal_font_size = 54
+text = "Boat Simulator"
+horizontal_alignment = 1
+
+[node name="Button" type="Button" parent="." unique_id=1005913825]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.38194445
+anchor_top = 0.55709875
+anchor_right = 0.703125
+anchor_bottom = 0.75912344
+offset_right = -95.0
+offset_bottom = -38.911987
+theme_override_font_sizes/font_size = 37
+text = "Start"
+metadata/_edit_use_anchors_ = true
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

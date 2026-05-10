@@ -1,25 +1,81 @@
-# Logs
-logs
+# macos junk
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# windows junk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# linux junk
+*~
+
+# editor / ide
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# env files
+.env
+.env.*
+!.env.example
+
+# logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# vue / node
+vue/node_modules/
+vue/dist/
+vue/.vite/
+vue/.nuxt/
+vue/.output/
+vue/coverage/
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# random downloaded html files
+vue/*.html
 
+# godot 4 generated/import cache
+godot/.godot/
+godot/imported/
+godot/export.cfg
+
+# godot exports/builds
+godot/builds/
+godot/exports/
+godot/*.pck
+godot/*.exe
+godot/*.x86_64
+godot/*.apk
+godot/*.aab
+godot/*.app
+godot/*.dmg
+godot/*.zip
+
+# screenshots / recordings
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.mov
+*.mkv
+
+# blender autosaves/backups
+*.blend1
+*.blend2
+*.blend@
+
+# godot generated cache
+.godot/
+godot/.godot/
+
+# godot imported/generated files
+.import/
+godot/.import/
+godot/imported/
