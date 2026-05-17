@@ -11,6 +11,9 @@ func _ready() -> void:
 	n_buoys.buoy_count_submitted.connect(
 		buoy_coordinates.show_coordinate_ui
 	)
+	#hide the uis at first 
+	n_buoys.visible = true
+	buoy_coordinates.visible = false
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
