@@ -3,21 +3,17 @@ extends Node3D
 # we should use object culling instead
 # we probably wont need more than like 20.
 # just like move the ones up to the ones they need and hide the rest.
-
-@onready var buoy: Node3D = $Buoys/Buoy
-@onready var buoys_parent_node: Node3D = $Buoys
-@onready var n_buoy: LineEdit = $n_buoys/n_buoy
+@onready var n_buoys: CanvasLayer = $n_buoys
+@onready var buoy_coordinates: CanvasLayer = $buoy_coordinates
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
+	n_buoys.buoy_count_submitted.connect(
+		buoy_coordinates.show_coordinate_ui
+	)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
 	
-
-
-func _on_n_buoy_editing_toggled(toggled_on: bool) -> void:
-	pass # Replace with function body.

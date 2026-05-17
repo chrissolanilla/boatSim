@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://c7mn0uo5ixu7h" path="res://buoy/buoy.tscn" id="1_yr1vs"]
 [ext_resource type="PackedScene" uid="uid://cyqcpfasocaus" path="res://Player/Player.tscn" id="2_axawr"]
 [ext_resource type="Script" uid="uid://cxtsp3b3p1436" path="res://Level1/ui_buoys.gd" id="4_22xjp"]
+[ext_resource type="Script" uid="uid://c08v3w0x1ea5f" path="res://Level1/ui_cordinates.gd" id="5_iits7"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yr1vs"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -85,6 +86,7 @@ text = "Submit
 [node name="buoy_coordinates" type="CanvasLayer" parent="." unique_id=1503615693]
 layer = 2
 visible = false
+script = ExtResource("5_iits7")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="buoy_coordinates" unique_id=1974101524]
 offset_left = 800.0
