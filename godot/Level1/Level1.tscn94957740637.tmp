@@ -33,6 +33,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0504665, 0, 3.1714969)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
 
 [node name="n_buoys" type="CanvasLayer" parent="." unique_id=1075508801]
+visible = false
 
 [node name="number_of_buoys" type="RichTextLabel" parent="n_buoys" unique_id=1441808625]
 anchors_preset = -1
@@ -84,13 +85,12 @@ text = "Submit
 
 [node name="buoy_coordinates" type="CanvasLayer" parent="." unique_id=1503615693]
 layer = 2
-visible = false
 
 [node name="HBoxContainer" type="HBoxContainer" parent="buoy_coordinates" unique_id=1974101524]
-offset_left = 800.0
-offset_top = 325.0
-offset_right = 1050.0
-offset_bottom = 475.0
+offset_left = 806.0
+offset_top = 322.0
+offset_right = 1036.0
+offset_bottom = 454.0
 
 [node name="list_of_coordinates" type="RichTextLabel" parent="buoy_coordinates/HBoxContainer" unique_id=1898200679]
 layout_mode = 2
@@ -183,14 +183,9 @@ vertical_alignment = 1
 anchors_preset = 4
 anchor_top = 0.5
 anchor_bottom = 0.5
-offset_left = 25.0
 offset_top = -62.5
-offset_right = 425.0
+offset_right = 400.0
 offset_bottom = 62.5
 grow_vertical = 2
-fit_content = true
-horizontal_alignment = 1
-vertical_alignment = 1
 
-[connection signal="editing_toggled" from="n_buoys/n_buoy" to="n_buoys/n_buoy" method="_on_editing_toggled"]
 [connection signal="pressed" from="n_buoys/n_buoy/submit_n_buoys" to="." method="_on_button_pressed"]
