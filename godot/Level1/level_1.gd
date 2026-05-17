@@ -8,11 +8,6 @@ extends Node3D
 @onready var buoys_parent_node: Node3D = $Buoys
 @onready var n_buoy: LineEdit = $n_buoys/n_buoy
 
-
-
-
-
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.

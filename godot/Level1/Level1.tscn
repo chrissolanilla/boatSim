@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cy3l7uhu0nryo" path="res://Level1/level_1.gd" id="1_4bnji"]
 [ext_resource type="PackedScene" uid="uid://c7mn0uo5ixu7h" path="res://buoy/buoy.tscn" id="1_yr1vs"]
 [ext_resource type="PackedScene" uid="uid://cyqcpfasocaus" path="res://Player/Player.tscn" id="2_axawr"]
-[ext_resource type="Script" uid="uid://cfsskbyoiisn8" path="res://Level1/buoys.gd" id="4_22xjp"]
+[ext_resource type="Script" uid="uid://cxtsp3b3p1436" path="res://Level1/ui_buoys.gd" id="4_22xjp"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yr1vs"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -33,6 +33,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0504665, 0, 3.1714969)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.9850701, 0, 0.43735814)
 
 [node name="n_buoys" type="CanvasLayer" parent="." unique_id=1075508801]
+script = ExtResource("4_22xjp")
 
 [node name="number_of_buoys" type="RichTextLabel" parent="n_buoys" unique_id=1441808625]
 anchors_preset = -1
@@ -64,7 +65,6 @@ grow_horizontal = 2
 grow_vertical = 0
 placeholder_text = "Enter number of buoy's"
 alignment = 1
-script = ExtResource("4_22xjp")
 
 [node name="submit_n_buoys" type="Button" parent="n_buoys/n_buoy" unique_id=850784803]
 layout_mode = 1
@@ -125,7 +125,6 @@ grow_horizontal = 2
 grow_vertical = 2
 placeholder_text = "Input Coordinate Format"
 alignment = 1
-script = ExtResource("4_22xjp")
 
 [node name="lat_and_lon" type="RichTextLabel" parent="buoy_coordinates" unique_id=745552333]
 anchors_preset = -1
@@ -154,7 +153,6 @@ grow_horizontal = 2
 grow_vertical = 2
 placeholder_text = "Lat Coord"
 alignment = 1
-script = ExtResource("4_22xjp")
 
 [node name="lon_input" type="LineEdit" parent="buoy_coordinates" unique_id=762496060]
 anchors_preset = -1
@@ -168,7 +166,6 @@ offset_right = 50.599976
 offset_bottom = 60.0
 placeholder_text = "Lon Coord"
 alignment = 1
-script = ExtResource("4_22xjp")
 
 [node name="loc_title" type="RichTextLabel" parent="buoy_coordinates" unique_id=90165548]
 offset_left = 775.0
@@ -193,4 +190,4 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [connection signal="editing_toggled" from="n_buoys/n_buoy" to="n_buoys/n_buoy" method="_on_editing_toggled"]
-[connection signal="pressed" from="n_buoys/n_buoy/submit_n_buoys" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="n_buoys/n_buoy/submit_n_buoys" to="n_buoys" method="_on_submit_n_buoys_pressed"]

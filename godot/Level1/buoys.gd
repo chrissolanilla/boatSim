@@ -12,7 +12,6 @@ var lat_list = []
 var lon_list = []
 var x = 0
 
-
 func _ready() -> void:
 	n_buoy.text_submitted.connect(_number_of_inputs)
 	coord_unit_input.text_submitted.connect(_coordinate_normilization)
@@ -21,8 +20,7 @@ func _ready() -> void:
 	lon_input.text_submitted.connect( _lon_text_submitted )
 	
 	pass # Replace with function body.
-
-
+	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
@@ -33,7 +31,7 @@ func _coordinate_dict(key, value):
 	
 	
 func _number_of_inputs(number_of_buoys = 2 ): # put two as a minimum number available there
-	number_of_buoys = number_of_buoys.to_int()
+	number_of_buoys = int(number_of_buoys)
 	if number_of_buoys < 2:
 		print("Not Enough Buoys to calculate data, Please input 2 or more to calculate distance")
 	else:
@@ -41,7 +39,6 @@ func _number_of_inputs(number_of_buoys = 2 ): # put two as a minimum number avai
 			if i < number_of_buoys:
 				i += 1
 		
-	
 func _lat_text_submitted(new_text: String): #takes lat input and is supposed to start converting it to floats instead of strings
 	var x
 	if new_text.is_valid_float():
@@ -63,8 +60,6 @@ func _lon_text_submitted(new_text: String): #same thing but lon input
 func _coordinate_normilization(unit, coord): #I started doing this so that we can have coordinates normalized to the format of decimal degrees as I think the harversine formula works with that unit
 	if unit.strip_edges().to_lower() == "dmm": #decimal minutes 
 		x = coord.strip_edges()
-		
-		
 	else:
 		if unit.strip_edges().to_lower() == "dms": # degrees, minutes, seconds format
 			x = coord.strip_edges()
@@ -79,10 +74,6 @@ func return_try_again_message(error_type: String): #error message for the wrong 
 	await get_tree().create_timer(3.0).timeout
 	try_again.clear()
 	
-#func _split():
-	
-
-
 func _on_editing_toggled(toggled_on: bool) -> void: #this was to start allowing us to edit the rich text label to fix any mistakes made when entering data but it is just a functon from rich text labels
 	pass # Replace with function body.
 	
