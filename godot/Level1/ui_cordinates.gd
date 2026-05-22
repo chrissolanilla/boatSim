@@ -6,6 +6,8 @@ extends CanvasLayer
 @onready var list_of_coordinates: RichTextLabel = $list_of_coordinates
 @onready var try_again: RichTextLabel = $try_again
 
+signal cordinates_ready(cordinates: Array[Vector2])
+
 var num_buoys: int = 0
 var current_buoy_index: int = 0
 var coordinates: Array[Vector2] = []
@@ -17,10 +19,10 @@ func show_coordinate_ui(amount: int) -> void:
 	num_buoys = amount
 	current_buoy_index = 0
 	coordinates.clear()
-
+	
 	for i in range(num_buoys):
 		coordinates.append(Vector2.INF)
-
+		
 	visible = true
 	_update_ui()
 
@@ -92,7 +94,7 @@ func _on_next_pressed() -> void:
 	else:
 		print("all buoys entered")
 		print(coordinates)
-		#later: emit signal here to spawn the buoys
+		cordinates_ready.emit(coordinates)
 
 func _on_prev_pressed() -> void:
 	_save_current_coordinate(false)

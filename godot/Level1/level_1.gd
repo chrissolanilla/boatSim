@@ -11,6 +11,11 @@ func _ready() -> void:
 	n_buoys.buoy_count_submitted.connect(
 		buoy_coordinates.show_coordinate_ui
 	)
+	#define the on receive method
+	buoy_coordinates.cordinates_ready.connect(
+		n_buoys.set_buoy_positions
+	)
+
 	#hide the uis at first 
 	n_buoys.visible = true
 	buoy_coordinates.visible = false
