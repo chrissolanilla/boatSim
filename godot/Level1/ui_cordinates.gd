@@ -2,9 +2,11 @@ extends CanvasLayer
 
 @onready var lat_input: LineEdit = $lat_input
 @onready var lon_input: LineEdit = $lon_input
+@onready var coordinate_unit: LineEdit = $coordinate_unit
 @onready var loc_title: RichTextLabel = $loc_title
 @onready var list_of_coordinates: RichTextLabel = $list_of_coordinates
 @onready var try_again: RichTextLabel = $try_again
+
 
 signal cordinates_ready(cordinates: Array[Vector2])
 
@@ -102,6 +104,25 @@ func _on_prev_pressed() -> void:
 	if current_buoy_index > 0:
 		current_buoy_index -= 1
 		_update_ui()
+
+func coordinate_normalization(coordinate: Vector2, unit: String):
+	unit.to_lower().strip_edges()
+	var coords = []
+	if unit == "dd" or "decimal degrees" or " ":
+		pass
+	else:
+		if unit == "dm" or "ddm" or "degrees decimal minutes" or "decimal minutes":
+			for i in range(coordinate):
+				coords.append([coordinate.x, coordinate.y])
+				for j in range(coords):
+					coords.rsplit(" ")
+					
+					#this code is meant to ONLY take the input of the coordinates if the input values are dm, ddm, degrees decimal minutes, decimal minutes, along with degrees minutes seconds and dms
+					#it is supposed to split up the string and then take the degrees minutes and divide it by 60 and put that as the decimal to the degrees for ddm
+					#not fully done, will work more on this later
+		else:
+			pass
+
 func deg_to_rad_custom(deg: float) -> float:
 	return deg * PI / 180
 

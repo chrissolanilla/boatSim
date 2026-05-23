@@ -103,16 +103,30 @@ size_flags_horizontal = 6
 size_flags_vertical = 6
 
 [node name="HBoxContainer" type="HBoxContainer" parent="buoy_coordinates" unique_id=1974101524]
-offset_left = 800.0
-offset_top = 325.0
-offset_right = 1050.0
-offset_bottom = 475.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -125.0
+offset_top = -215.0
+offset_right = 125.0
+offset_bottom = -65.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="loc_title" type="RichTextLabel" parent="buoy_coordinates" unique_id=90165548]
-offset_left = 775.0
-offset_top = 275.0
-offset_right = 1075.0
-offset_bottom = 305.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -150.0
+offset_top = -265.0
+offset_right = 150.0
+offset_bottom = -235.0
+grow_horizontal = 2
+grow_vertical = 2
 text = "List of Coordinates"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -156,6 +170,19 @@ offset_top = 25.0
 offset_right = 50.599976
 offset_bottom = 60.0
 placeholder_text = "Lon Coord"
+alignment = 1
+
+[node name="coordinate_unit" type="LineEdit" parent="buoy_coordinates" unique_id=1472353462]
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -90.0
+offset_top = -319.0
+offset_right = 90.0
+offset_bottom = -284.0
+placeholder_text = "Unit for Coordinates"
 alignment = 1
 
 [node name="Next" type="Button" parent="buoy_coordinates" unique_id=513076437]
