@@ -39,23 +39,23 @@ func _number_of_inputs(number_of_buoys = 2 ): # put two as a minimum number avai
 			if i < number_of_buoys:
 				i += 1
 		
-func _lat_text_submitted(new_text: String): #takes lat input and is supposed to start converting it to floats instead of strings
-	var x
-	if new_text.is_valid_float():
-		x = float(new_text)
-		lat_list.append(new_text)
-	else:
-		print("Cannot return float, entry of data is wrong")
-		return_try_again_message("Lattitude")
+#func _lat_text_submitted(new_text: String): #takes lat input and is supposed to start converting it to floats instead of strings
+	#var x
+	#if new_text.is_valid_float():
+		#x = float(new_text)
+		#lat_list.append(new_text)
+	#else:
+		#print("Cannot return float, entry of data is wrong")
+		#return_try_again_message("Lattitude")
 	
-func _lon_text_submitted(new_text: String): #same thing but lon input
-	var x
-	if new_text.is_valid_float():
-		x = float(new_text)
-		lon_list.append(new_text)
-	else:
-		print("Cannot return float, entry of data is wrong")
-		return_try_again_message("Longittude")
+#func _lon_text_submitted(new_text: String): #same thing but lon input
+	#var x
+	#if new_text.is_valid_float():
+		#x = float(new_text)
+		#lon_list.append(new_text)
+	#else:
+		#print("Cannot return float, entry of data is wrong")
+		#return_try_again_message("Longittude")
 	
 func _coordinate_normilization(unit, coord): #I started doing this so that we can have coordinates normalized to the format of decimal degrees as I think the harversine formula works with that unit
 	if unit.strip_edges().to_lower() == "dmm": #decimal minutes 

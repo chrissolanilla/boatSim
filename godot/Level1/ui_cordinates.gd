@@ -11,6 +11,7 @@ signal cordinates_ready(cordinates: Array[Vector2])
 var num_buoys: int = 0
 var current_buoy_index: int = 0
 var coordinates: Array[Vector2] = []
+const EARTH_RADIUS_KM := 6371.0
 
 func _ready() -> void:
 	visible = false
@@ -101,3 +102,23 @@ func _on_prev_pressed() -> void:
 	if current_buoy_index > 0:
 		current_buoy_index -= 1
 		_update_ui()
+func deg_to_rad_custom(deg: float) -> float:
+	return deg * PI / 180
+
+func harversine_distance(coord1: Vector2, coord2: Vector2) -> float:
+	var lon1 = deg_to_rad_custom(coord1.x)
+	var lat1 = deg_to_rad_custom(coord1.y)
+	
+	var lon2 = deg_to_rad_custom(coord2.x)
+	var lat2 = deg_to_rad_custom(coord2.y)
+	
+	var dlon = lon2 - lon1
+	var dlat = lat2 - lat1
+	
+	var a = sin(dlat / 2.0) * sin(dlat / 2.0) + cos(lat1) * cos(lat2) * sin(dlon / 2.0) * sin(dlon / 2.0)
+		
+	var c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a))
+	
+	return EARTH_RADIUS_KM * c	
+		
+	
