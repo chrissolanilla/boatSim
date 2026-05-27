@@ -105,23 +105,168 @@ func _on_prev_pressed() -> void:
 		current_buoy_index -= 1
 		_update_ui()
 
-func coordinate_normalization(coordinate: Vector2, unit: String):
-	unit.to_lower().strip_edges()
-	var coords = []
-	if unit == "dd" or "decimal degrees" or " ":
-		pass
+func coordinate_normalization(coord_string: String) -> Vector2:
+	#"""
+	#Parse a coordinate string and convert to Decimal Degrees (DD)
+	#
+	#Supported formats:
+	#DD:  "45.5083, -120.2375" or "45.5083 -120.2375"
+	#DM:  "45° 30.5' -120° 45.75'" or "45 30.5 -120 45.75"
+	#DMS: "45° 30' 30\" -120° 45' 45\"" or "45 30 30 -120 45 45"
+	#"""
+	coord_string = coord_string.strip_edges()
+	
+	var has_degree_symbol = coord_string.find("°") != -1
+	var has_minute_symbol = coord_string.find("'") != -1
+	var has_second_symbol = coord_string.find("\"") != -1 or coord_string.find("''") != -1
+	
+	# Detect format
+	if has_second_symbol:
+		return _parse_dms_string(coord_string)
+	elif has_minute_symbol or has_degree_symbol:
+		return _parse_dm_string(coord_string)
 	else:
-		if unit == "dm" or "ddm" or "degrees decimal minutes" or "decimal minutes":
-			for i in range(coordinate):
-				coords.append([coordinate.x, coordinate.y])
-				for j in range(coords):
-					coords.rsplit(" ")
-					
-					#this code is meant to ONLY take the input of the coordinates if the input values are dm, ddm, degrees decimal minutes, decimal minutes, along with degrees minutes seconds and dms
-					#it is supposed to split up the string and then take the degrees minutes and divide it by 60 and put that as the decimal to the degrees for ddm
-					#not fully done, will work more on this later
+		return _parse_dd_string(coord_string)
+
+func _parse_dd_string(coord_string: String) -> Vector2:
+	#"""Parse Decimal Degrees format: '45.5083, -120.2375'"""
+	# Remove any commas and split by whitespace
+	coord_string = coord_string.replace(",", " ")
+	var parts = coord_string.strip_edges().split(" ", false)
+	
+	if parts.size() >= 2:
+		var lat = float(parts[0])
+		var lon = float(parts[1])
+		return Vector2(lat, lon)
+	
+	print("Error parsing DD string")
+	return Vector2(0, 0)
+
+func _parse_dm_string(coord_string: String) -> Vector2:
+	#"""Parse Degrees Decimal Minutes format: '45° 30.5' -120° 45.75''"""
+	# Split into latitude and longitude parts
+	var parts = coord_string.split(" ", false)
+	
+	# Find where longitude starts (look for negative sign or second number)
+	var lat_parts = []
+	var lon_parts = []
+	var is_latitude = true
+	
+	for i in range(parts.size()):
+		var part = parts[i]
+		
+		# If we find a negative sign or we've already collected enough for lat
+		if part.contains("-") and i > 0:
+			is_latitude = false
+		
+		if is_latitude:
+			lat_parts.append(part)
 		else:
-			pass
+			lon_parts.append(part)
+	
+	# Parse latitude
+	var lat = _parse_dm_value(lat_parts)
+	var lon = _parse_dm_value(lon_parts)
+	
+	return Vector2(lat, lon)
+
+func _parse_dm_value(parts: Array) -> float:
+	#"""Parse a single DM value like '45° 30.5'' to decimal degrees"""
+	var degrees = 0.0
+	var minutes = 0.0
+	var is_negative = false
+	
+	for part in parts:
+		# Remove degree and minute symbols
+		var clean_part = part.replace("°", "").replace("'", "").strip_edges()
+		
+		if clean_part == "":
+			continue
+			
+		var value = float(clean_part)
+		
+		# Check for negative
+		if value < 0:
+			is_negative = true
+			value = abs(value)
+		
+		# First number is degrees, second is minutes
+		if degrees == 0:
+			degrees = value
+		else:
+			minutes = value
+	
+	var result = degrees + (minutes / 60.0)
+	if is_negative:
+		result = -result
+	
+	return result
+
+func _parse_dms_string(coord_string: String) -> Vector2:
+	#Parse Degrees Minutes Seconds format: '45° 30' 30" -120° 45' 45"'
+	# Split into latitude and longitude parts
+	var parts = coord_string.split(" ", false)
+	
+	var lat_parts = []
+	var lon_parts = []
+	var is_latitude = true
+	
+	for i in range(parts.size()):
+		var part = parts[i]
+		
+		# If we find a negative sign or we've already collected 3 parts for lat
+		if part.contains("-") and i > 0:
+			is_latitude = false
+		
+		if is_latitude:
+			lat_parts.append(part)
+		else:
+			lon_parts.append(part)
+	
+	# Parse latitude and longitude
+	var lat = _parse_dms_value(lat_parts)
+	var lon = _parse_dms_value(lon_parts)
+	
+	return Vector2(lat, lon)
+
+func _parse_dms_value(parts: Array) -> float:
+	#"""Parse a single DMS value like '45° 30' 30"' to decimal degrees"""
+	var degrees = 0.0
+	var minutes = 0.0
+	var seconds = 0.0
+	var is_negative = false
+	var part_index = 0
+	
+	for part in parts:
+		# Remove symbols
+		var clean_part = part.replace("°", "").replace("'", "").replace("\"", "").strip_edges()
+		
+		if clean_part == "":
+			continue
+			
+		var value = float(clean_part)
+		
+		# Check for negative
+		if value < 0:
+			is_negative = true
+			value = abs(value)
+		
+		# Assign to degrees, minutes, or seconds in order
+		match part_index:
+			0:
+				degrees = value
+			1:
+				minutes = value
+			2:
+				seconds = value
+		
+		part_index += 1
+	
+	var result = degrees + (minutes / 60.0) + (seconds / 3600.0)
+	if is_negative:
+		result = -result
+	
+	return result
 
 func deg_to_rad_custom(deg: float) -> float:
 	return deg * PI / 180
