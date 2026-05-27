@@ -12,26 +12,39 @@ signal cordinates_ready(cordinates: Array[Vector2])
 
 var num_buoys: int = 0
 var current_buoy_index: int = 0
-var coordinates: Array[Vector2] = []
+var coordinates_float: Array[Vector2] = []
+var coordinates_input = {}
 const EARTH_RADIUS_KM := 6371.0
 
 func _ready() -> void:
 	visible = false
 
+func dict_to_vector(dict):
+	for key in dict:
+		var value = dict[key]
+		if value.is_valid_float() == true:
+			pass
+		#coordinates_float.append()
+
+
+
 func show_coordinate_ui(amount: int) -> void:
 	num_buoys = amount
 	current_buoy_index = 0
-	coordinates.clear()
+	
+	coordinates_float.clear()
 	
 	for i in range(num_buoys):
-		coordinates.append(Vector2.INF)
+		coordinates_float.append(Vector2.INF)
 		
 	visible = true
 	_update_ui()
 
+
+
 func _save_current_coordinate(show_error := true) -> bool:
-	if not lat_input.text.is_valid_float():
-		if show_error:
+	if not lat_input.text.is_valid_float(): #must be fixed to allow for non floats, we need to be able to allow all formats of gps so that we don't have to manually convert them, and can just plug them in
+		if show_error:						#I take it back, we have to float the converted coordinates, we can convert them and put them in here to simplify it 
 			_show_error("latitude must be a number")
 		return false
 
@@ -53,16 +66,18 @@ func _save_current_coordinate(show_error := true) -> bool:
 			_show_error("longitude must be between -180 and 180")
 		return false
 
-	coordinates[current_buoy_index] = Vector2(lon, lat)
+	coordinates_float[current_buoy_index] = Vector2(lon, lat)
 	_show_error("")
 	_update_coordinate_list()
 
 	return true
 
+
+
 func _update_ui() -> void:
 	loc_title.text = "Buoy %d of %d" % [current_buoy_index + 1, num_buoys]
 
-	var saved_coord := coordinates[current_buoy_index]
+	var saved_coord := coordinates_float[current_buoy_index]
 
 	if saved_coord == Vector2.INF:
 		lat_input.text = ""
@@ -73,10 +88,12 @@ func _update_ui() -> void:
 
 	_update_coordinate_list()
 
+
+
 func _update_coordinate_list() -> void:
 	list_of_coordinates.clear()
-	for i in range(coordinates.size()):
-		var coord := coordinates[i]
+	for i in range(coordinates_float.size()):
+		var coord := coordinates_float[i]
 		if coord == Vector2.INF:
 			list_of_coordinates.append_text("Buoy %d: not entered yet\n" % [i + 1])
 		else:
@@ -84,8 +101,12 @@ func _update_coordinate_list() -> void:
 				"Buoy %d: lat %.6f, lon %.6f\n" % [i + 1, coord.y, coord.x]
 			)
 
+
+
 func _show_error(message: String) -> void:
 	try_again.text = message
+
+
 
 func _on_next_pressed() -> void:
 	if not _save_current_coordinate():
@@ -96,8 +117,10 @@ func _on_next_pressed() -> void:
 		_update_ui()
 	else:
 		print("all buoys entered")
-		print(coordinates)
-		cordinates_ready.emit(coordinates)
+		print(coordinates_float)
+		cordinates_ready.emit(coordinates_float)
+
+
 
 func _on_prev_pressed() -> void:
 	_save_current_coordinate(false)
@@ -105,15 +128,16 @@ func _on_prev_pressed() -> void:
 		current_buoy_index -= 1
 		_update_ui()
 
+
+
 func coordinate_normalization(coord_string: String) -> Vector2:
-	#"""
 	#Parse a coordinate string and convert to Decimal Degrees (DD)
-	#
+	
 	#Supported formats:
 	#DD:  "45.5083, -120.2375" or "45.5083 -120.2375"
 	#DM:  "45° 30.5' -120° 45.75'" or "45 30.5 -120 45.75"
 	#DMS: "45° 30' 30\" -120° 45' 45\"" or "45 30 30 -120 45 45"
-	#"""
+	
 	coord_string = coord_string.strip_edges()
 	
 	var has_degree_symbol = coord_string.find("°") != -1
@@ -128,6 +152,8 @@ func coordinate_normalization(coord_string: String) -> Vector2:
 	else:
 		return _parse_dd_string(coord_string)
 
+
+
 func _parse_dd_string(coord_string: String) -> Vector2:
 	#"""Parse Decimal Degrees format: '45.5083, -120.2375'"""
 	# Remove any commas and split by whitespace
@@ -141,6 +167,8 @@ func _parse_dd_string(coord_string: String) -> Vector2:
 	
 	print("Error parsing DD string")
 	return Vector2(0, 0)
+
+
 
 func _parse_dm_string(coord_string: String) -> Vector2:
 	#"""Parse Degrees Decimal Minutes format: '45° 30.5' -120° 45.75''"""
@@ -169,6 +197,8 @@ func _parse_dm_string(coord_string: String) -> Vector2:
 	var lon = _parse_dm_value(lon_parts)
 	
 	return Vector2(lat, lon)
+
+
 
 func _parse_dm_value(parts: Array) -> float:
 	#"""Parse a single DM value like '45° 30.5'' to decimal degrees"""
@@ -202,6 +232,8 @@ func _parse_dm_value(parts: Array) -> float:
 	
 	return result
 
+
+
 func _parse_dms_string(coord_string: String) -> Vector2:
 	#Parse Degrees Minutes Seconds format: '45° 30' 30" -120° 45' 45"'
 	# Split into latitude and longitude parts
@@ -228,6 +260,8 @@ func _parse_dms_string(coord_string: String) -> Vector2:
 	var lon = _parse_dms_value(lon_parts)
 	
 	return Vector2(lat, lon)
+
+
 
 func _parse_dms_value(parts: Array) -> float:
 	#"""Parse a single DMS value like '45° 30' 30"' to decimal degrees"""
@@ -268,8 +302,12 @@ func _parse_dms_value(parts: Array) -> float:
 	
 	return result
 
+
+
 func deg_to_rad_custom(deg: float) -> float:
 	return deg * PI / 180
+
+
 
 func harversine_distance(coord1: Vector2, coord2: Vector2) -> float:
 	var lon1 = deg_to_rad_custom(coord1.x)
