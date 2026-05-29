@@ -7,29 +7,25 @@ extends CharacterBody3D
 const SPEED := 8.0
 const SPRINT_SPEED := 20.0
 const MOUSE_SENSITIVITY := 0.003
-#not prop pitch lol
 var pitch := 0.0
-
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	#for no clip
-	#model_collision.disabled = true
+	# for no clip
+	# model_collision.disabled = true
 
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
-		# rotate body left/right
-		rotate_y(-event.relative.x * MOUSE_SENSITIVITY)
-
-		# rotate camera up/down
-		pitch -= event.relative.y * MOUSE_SENSITIVITY
-		pitch = clamp(pitch, deg_to_rad(-89.0), deg_to_rad(89.0))
-		camera_3d.rotation.x = pitch
-
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
-		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		toggle_mouse_capture()
+		return
 
+	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+		if event is InputEventMouseMotion:
+			rotate_y(-event.relative.x * MOUSE_SENSITIVITY)
+
+			pitch -= event.relative.y * MOUSE_SENSITIVITY
+			pitch = clamp(pitch, deg_to_rad(-89.0), deg_to_rad(89.0))
+			camera_3d.rotation.x = pitch
 
 func _physics_process(delta: float) -> void:
 	var direction := Vector3.ZERO
@@ -64,3 +60,9 @@ func _physics_process(delta: float) -> void:
 
 	velocity = direction * current_speed
 	move_and_slide()
+
+func toggle_mouse_capture() -> void:
+	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

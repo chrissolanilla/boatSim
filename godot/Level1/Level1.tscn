@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://cyqcpfasocaus" path="res://Player/Player.tscn" id="2_axawr"]
 [ext_resource type="Script" uid="uid://cxtsp3b3p1436" path="res://Level1/ui_buoys.gd" id="4_22xjp"]
 [ext_resource type="Script" uid="uid://c08v3w0x1ea5f" path="res://Level1/ui_cordinates.gd" id="5_iits7"]
+[ext_resource type="PackedScene" uid="uid://dev2p0gb68mic" path="res://blender/528Feet.glb" id="6_btw7m"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yr1vs"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -204,6 +205,9 @@ offset_left = 467.0
 offset_top = 307.0
 offset_right = 713.0
 offset_bottom = 392.0
+
+[node name="528Feet" parent="." unique_id=1001759975 instance=ExtResource("6_btw7m")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6939359, 0, -3.6928735)
 
 [connection signal="editing_toggled" from="n_buoys/n_buoy" to="n_buoys/n_buoy" method="_on_editing_toggled"]
 [connection signal="pressed" from="n_buoys/n_buoy/submit_n_buoys" to="n_buoys" method="_on_submit_n_buoys_pressed"]
