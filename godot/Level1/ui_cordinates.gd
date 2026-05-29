@@ -41,20 +41,19 @@ func show_coordinate_ui(amount: int) -> void:
 	_update_ui()
 
 
-
 func _save_current_coordinate(show_error := true) -> bool:
-	if not lat_input.text.is_valid_float(): #must be fixed to allow for non floats, we need to be able to allow all formats of gps so that we don't have to manually convert them, and can just plug them in
-		if show_error:						#I take it back, we have to float the converted coordinates, we can convert them and put them in here to simplify it 
-			_show_error("latitude must be a number")
-		return false
+	var lat := parse_degree_decimal_minutes(lat_input.text)
+	var lon := parse_degree_decimal_minutes(lon_input.text)
 
-	if not lon_input.text.is_valid_float():
+	if is_nan(lat):
 		if show_error:
-			_show_error("longitude must be a number")
+			_show_error("bad latitude format")
 		return false
 
-	var lat := float(lat_input.text)
-	var lon := float(lon_input.text)
+	if is_nan(lon):
+		if show_error:
+			_show_error("bad longitude format")
+		return false
 
 	if lat < -90.0 or lat > 90.0:
 		if show_error:
@@ -71,8 +70,41 @@ func _save_current_coordinate(show_error := true) -> bool:
 	_update_coordinate_list()
 
 	return true
+	
+func parse_degree_decimal_minutes(text: String) -> float:
+	var cleaned := text.strip_edges().to_upper()
+	#if user already entered decimal degrees, accept it
+	if cleaned.is_valid_float():
+		return float(cleaned)
 
+	var direction := ""
+	if cleaned.begins_with("N") or cleaned.begins_with("S") or cleaned.begins_with("E") or cleaned.begins_with("W"):
+		direction = cleaned.substr(0, 1)
+		cleaned = cleaned.substr(1).strip_edges()
+	else:
+		return NAN
 
+	cleaned = cleaned.replace("°", " ")
+	cleaned = cleaned.replace("'", " ")
+	cleaned = cleaned.replace(",", " ")
+
+	var parts := cleaned.split(" ", false)
+
+	if parts.size() < 2:
+		return NAN
+
+	if not parts[0].is_valid_float() or not parts[1].is_valid_float():
+		return NAN
+
+	var degrees := float(parts[0])
+	var minutes := float(parts[1])
+
+	var result := degrees + minutes / 60.0
+
+	if direction == "S" or direction == "W":
+		result *= -1.0
+
+	return result
 
 func _update_ui() -> void:
 	loc_title.text = "Buoy %d of %d" % [current_buoy_index + 1, num_buoys]

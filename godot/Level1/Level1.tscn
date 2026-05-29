@@ -1,11 +1,10 @@
-[gd_scene format=3 uid="uid://dmif80ynvofu4"]
+[gd_scene format=4 uid="uid://dmif80ynvofu4"]
 
 [ext_resource type="Script" uid="uid://cy3l7uhu0nryo" path="res://Level1/level_1.gd" id="1_4bnji"]
 [ext_resource type="PackedScene" uid="uid://c7mn0uo5ixu7h" path="res://buoy/buoy.tscn" id="1_yr1vs"]
 [ext_resource type="PackedScene" uid="uid://cyqcpfasocaus" path="res://Player/Player.tscn" id="2_axawr"]
 [ext_resource type="Script" uid="uid://cxtsp3b3p1436" path="res://Level1/ui_buoys.gd" id="4_22xjp"]
 [ext_resource type="Script" uid="uid://c08v3w0x1ea5f" path="res://Level1/ui_cordinates.gd" id="5_iits7"]
-[ext_resource type="PackedScene" uid="uid://dev2p0gb68mic" path="res://blender/528Feet.glb" id="6_btw7m"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yr1vs"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -19,6 +18,44 @@ background_mode = 2
 sky = SubResource("Sky_axawr")
 tonemap_mode = 2
 glow_enabled = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wjd0s"]
+resource_name = "Material"
+cull_mode = 2
+albedo_color = Color(0.051966406, 0.9077233, 0, 1)
+roughness = 0.5
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_whtys"]
+_surfaces = [{
+"aabb": AABB(-1, -1, -1, 2, 2, 2),
+"format": 34896613377,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAwACAAEAAAAEAAEAAwAFAAIABQAAAAIABgAEAAAABQAGAAAABwABAAQABwADAAEABgAHAAQABQADAAcABQAHAAYA"),
+"name": "Material",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 8,
+"vertex_data": PackedByteArray("/////wAAAAAAAP////8AAAAA//8AAAAAAAAAAP//AAD///////8AAAAAAAAAAAAA//8AAAAAAAD//wAA//8AAA==")
+}]
+blend_shape_mode = 0
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_10lnf"]
+resource_name = "528Feet_Cube"
+_surfaces = [{
+"aabb": AABB(-1, -1, -1, 2, 2, 2),
+"attribute_data": PackedByteArray("/5//f//f/z//3/9//5//P/9f/z//nwAA/5//P/9fAAD/X////5//v/+f////X/+//x//f/9f/z//X/9//x//P/9f/3//n/8//5//f/9f/z//X/+//5//f/+f/7//X/9/"),
+"format": 34896613399,
+"index_count": 36,
+"index_data": PackedByteArray("AAABAAIAAAADAAEABAAFAAYABAAHAAUACAAJAAoACAALAAkADAANAA4ADAAPAA0AEAARABIAEAATABEAFAAVABYAFAAXABUA"),
+"material": SubResource("StandardMaterial3D_wjd0s"),
+"name": "Material",
+"primitive": 3,
+"uv_scale": Vector4(0, 0, 0, 0),
+"vertex_count": 24,
+"vertex_data": PackedByteArray("/////wAA//8AAP///////wAA//8AAP///////////////wAA////vwAA//////+//////////78AAAAA////vwAAAAD//1TVAAD//wAAVNUAAP////9U1QAAAAAAAFTVAAAAAAAA/7///wAA////v///AAAAAP+/AAAAAP///7///wAAAABU1f///////1TV/////wAAVNX//wAA//9U1QAAAAAAAP///////wAA//8AAP//AAD/////AAAAAP///3//v/9//7//f/+//3//v/////////////////////9U1VTVVNVU1VTVVNVU1VTVAAD/fwAA/38AAP9/AAD/f6oqqiqqKqoqqiqqKqoqqir/v/+//7//v/+//7//v/+/")
+}]
+blend_shape_mode = 0
+shadow_mesh = SubResource("ArrayMesh_whtys")
 
 [node name="Level1" type="Node3D" unique_id=1519677643]
 script = ExtResource("1_4bnji")
@@ -206,8 +243,12 @@ offset_top = 307.0
 offset_right = 713.0
 offset_bottom = 392.0
 
-[node name="528Feet" parent="." unique_id=1001759975 instance=ExtResource("6_btw7m")]
+[node name="528Feet" type="Node3D" parent="." unique_id=1001759975]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6939359, 0, -3.6928735)
+
+[node name="Cube" type="MeshInstance3D" parent="528Feet" unique_id=183062220]
+transform = Transform3D(80.4672, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+mesh = SubResource("ArrayMesh_10lnf")
 
 [connection signal="editing_toggled" from="n_buoys/n_buoy" to="n_buoys/n_buoy" method="_on_editing_toggled"]
 [connection signal="pressed" from="n_buoys/n_buoy/submit_n_buoys" to="n_buoys" method="_on_submit_n_buoys_pressed"]
