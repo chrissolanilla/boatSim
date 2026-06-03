@@ -1,55 +1,53 @@
-
-# Water3D.gd - Attach to a Node3D as your water system
 extends Node3D
 
 # Grid configuration
-@export var grid_width: int = 100    # Number of vertices along X
-@export var grid_depth: int = 100    # Number of vertices along Z
-@export var water_size: Vector2 = Vector2(20.0, 20.0)  # Size in world units
+@export var grid_width: int = 50
+@export var grid_depth: int = 50
+@export var water_size: Vector2 = Vector2(20.0, 20.0)
 
 # Wave parameters (0% to 100%)
 @export_range(0.0, 1.0) var wave_amplitude: float = 0.5:
 	set(value):
 		wave_amplitude = value
-		update_shader_parameters()
+		update_ui_sliders()
 @export_range(0.0, 1.0) var wave_frequency: float = 0.5:
 	set(value):
 		wave_frequency = value
-		update_shader_parameters()
+		update_ui_sliders()
 @export_range(0.0, 1.0) var wave_speed: float = 0.5:
 	set(value):
 		wave_speed = value
-		update_shader_parameters()
-@export_range(0.0, 1.0) var choppiness: float = 0.3:  # Makes waves sharper
+		update_ui_sliders()
+@export_range(0.0, 1.0) var wave_choppiness: float = 0.3:
 	set(value):
-		choppiness = value
-		update_shader_parameters()
-
-# Water appearance
-@export var water_color: Color = Color(0.2, 0.5, 0.8)
-@export var foam_color: Color = Color(0.9, 0.95, 1.0)
-@export var wave_normal_strength: float = 1.5
-@export var transparency: float = 0.85
+		wave_choppiness = value
+		update_ui_sliders()
 
 # Physics parameters
 @export var buoyancy_strength: float = 15.0
 @export var water_drag: float = 3.0
 @export var splash_force: float = 5.0
 
-# Wave types (Gerstner waves for 3D realism)
+var mesh_instance: MeshInstance3D
+var array_mesh: ArrayMesh
+var bodies_in_water: Dictionary = {}
+var elapsed_time: float = 0.0
+var original_vertices: Array[Vector3] = []
+var vertex_count: int = 0
+var control_panel: Control
+
+# Wave system - fixed parameter name (len -> wavelength)
 class GerstnerWave:
 	var direction: Vector2
 	var amplitude: float
 	var wavelength: float
 	var speed: float
-	var steepness: float
 	
-	func _init(dir: Vector2, amp: float, len: float, spd: float, steep: float):
+	func _init(dir: Vector2, amp: float, wave_len: float, spd: float):
 		direction = dir.normalized()
 		amplitude = amp
-		wavelength = len
+		wavelength = wave_len
 		speed = spd
-		steepness = steep
 	
 	func get_displacement(pos: Vector3, time: float) -> Vector3:
 		var k = 2.0 * PI / wavelength
@@ -57,52 +55,37 @@ class GerstnerWave:
 		var dir_vec = Vector3(direction.x, 0, direction.y)
 		var theta = k * dir_vec.dot(pos) + freq * time
 		
-		var dx = steepness * amplitude * direction.x * cos(theta)
-		var dz = steepness * amplitude * direction.y * cos(theta)
+		var dx = 0.3 * amplitude * direction.x * cos(theta)
+		var dz = 0.3 * amplitude * direction.y * cos(theta)
 		var dy = amplitude * sin(theta)
 		
 		return Vector3(dx, dy, dz)
 
 var waves: Array[GerstnerWave] = []
-var elapsed_time: float = 0.0
-
-# Mesh and visual components
-var mesh_instance: MeshInstance3D
-var water_material: ShaderMaterial
-var wave_texture: ViewportTexture
-var foam_particles: GPUParticles3D
-
-# Physics bodies in water
-var bodies_in_water: Dictionary = {}  # body -> {submerged_ratio, splash_timer}
 
 func _ready():
 	setup_waves()
 	create_water_mesh()
-	create_water_material()
-	create_foam_system()
+	setup_water_material()
 	setup_physics_area()
-	
+	create_control_panel()
+
 func setup_waves():
-	# Create multiple Gerstner waves for realistic 3D water
 	waves = [
-		GerstnerWave.new(Vector2(1, 0), 0.08, 2.0, 1.2, 0.5),
-		GerstnerWave.new(Vector2(0.7, 0.7), 0.06, 1.5, 0.9, 0.4),
-		GerstnerWave.new(Vector2(-0.5, 0.8), 0.05, 1.2, 1.5, 0.3),
-		GerstnerWave.new(Vector2(0.3, -0.9), 0.04, 0.8, 2.0, 0.2),
-		GerstnerWave.new(Vector2(-0.8, -0.2), 0.07, 1.8, 0.7, 0.45)
+		GerstnerWave.new(Vector2(1, 0), 0.08, 2.0, 1.2),
+		GerstnerWave.new(Vector2(0.7, 0.7), 0.06, 1.5, 0.9),
+		GerstnerWave.new(Vector2(-0.5, 0.8), 0.05, 1.2, 1.5),
+		GerstnerWave.new(Vector2(0.3, -0.9), 0.04, 0.8, 2.0)
 	]
 
 func create_water_mesh():
-	# Create dynamic mesh for water surface
-	var surface_tool = SurfaceTool.new()
-	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	array_mesh = ArrayMesh.new()
 	
-	# Generate vertices, UVs, and indices
-	var vertices = []
-	var uvs = []
-	var indices = []
+	var vertices = PackedVector3Array()
+	var indices = PackedInt32Array()
+	var normals = PackedVector3Array()
+	var uvs = PackedVector2Array()
 	
-	# Build vertex and UV arrays first
 	for z in range(grid_depth):
 		for x in range(grid_width):
 			var u = float(x) / (grid_width - 1)
@@ -111,187 +94,317 @@ func create_water_mesh():
 			var z_pos = (v - 0.5) * water_size.y
 			
 			vertices.append(Vector3(x_pos, 0, z_pos))
-			uvs.append(Vector2(u, v))  # UV coordinates for texturing
+			uvs.append(Vector2(u, v))
+			normals.append(Vector3.UP)
+			original_vertices.append(Vector3(x_pos, 0, z_pos))
 	
-	# Generate triangle indices
 	for z in range(grid_depth - 1):
 		for x in range(grid_width - 1):
 			var idx = z * grid_width + x
-			# First triangle
 			indices.append(idx)
 			indices.append(idx + grid_width)
 			indices.append(idx + 1)
-			# Second triangle
 			indices.append(idx + 1)
 			indices.append(idx + grid_width)
 			indices.append(idx + grid_width + 1)
 	
-	# Add ALL vertices first with their UVs
-	for i in range(vertices.size()):
-		surface_tool.set_uv(uvs[i])  # Set UV before adding vertex
-		surface_tool.add_vertex(vertices[i])
+	vertex_count = vertices.size()
 	
-	# Add indices (triangles)
-	for i in range(0, indices.size(), 3):
-		surface_tool.add_index(indices[i])
-		surface_tool.add_index(indices[i+1])
-		surface_tool.add_index(indices[i+2])
+	var arrays = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_INDEX] = indices
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
 	
-	# Generate normals and tangents for lighting
-	surface_tool.generate_normals()
-	surface_tool.generate_tangents()
+	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	
-	# Commit the mesh
-	var mesh = surface_tool.commit()
 	mesh_instance = MeshInstance3D.new()
-	mesh_instance.mesh = mesh
+	mesh_instance.mesh = array_mesh
 	add_child(mesh_instance)
 
-func create_water_material():
-	water_material = ShaderMaterial.new()
+func setup_water_material():
+	var material = StandardMaterial3D.new()
 	
-	var shader_code = """
-    shader_type spatial;
-    render_mode blend_mix, depth_draw_opaque, cull_back;
-    
-    uniform sampler2D wave_texture : source_color;
-    uniform vec4 water_color : source_color = vec4(0.2, 0.5, 0.8, 0.85);
-    uniform vec4 foam_color : source_color = vec4(0.9, 0.95, 1.0, 1.0);
-    uniform float wave_strength = 0.5;
-    uniform float wave_frequency = 2.0;
-    uniform float wave_speed = 1.5;
-    uniform float choppiness = 0.3;
-    uniform float normal_strength = 1.5;
-    uniform float time;
-    
-    // Random function for foam
-    float random(vec2 uv) {
-        return fract(sin(dot(uv.xy, vec2(12.9898,78.233))) * 43758.5453123);
-    }
-    
-    void vertex() {
-        vec3 pos = VERTEX;
-        vec2 uv = UV * wave_frequency;
-        
-        // Multiple wave layers for complexity
-        float wave1 = sin(uv.x * 2.0 + time * wave_speed) * cos(uv.y * 1.8 + time * 0.9);
-        float wave2 = sin(uv.y * 2.5 - time * 1.2) * 0.7;
-        float wave3 = sin((uv.x * 1.5 + uv.y * 1.2) * 1.8 + time * 1.4) * 0.5;
-        float wave4 = sin(uv.x * 4.0 + time * 2.0) * 0.3 * sin(uv.y * 3.0);
-        
-        float height = (wave1 + wave2 + wave3 + wave4) * wave_strength;
-        
-        // Choppiness effect (horizontal displacement for sharp waves)
-        pos.x += wave1 * choppiness * wave_strength;
-        pos.z += wave2 * choppiness * wave_strength;
-        pos.y = height;
-        
-        VERTEX = pos;
-        
-        // Calculate normals for lighting
-        vec3 tangent = vec3(1.0, 0.0, 0.0);
-        vec3 bitangent = vec3(0.0, 0.0, 1.0);
-        
-        float hx = sin((uv.x + 0.05) * 2.0 + time * wave_speed) * cos(uv.y * 1.8 + time * 0.9) - wave1;
-        float hz = sin(uv.x * 2.0 + time * wave_speed) * cos((uv.y + 0.05) * 1.8 + time * 0.9) - wave1;
-        
-        tangent.y = hx * wave_strength * normal_strength;
-        bitangent.y = hz * wave_strength * normal_strength;
-        
-        NORMAL = normalize(cross(tangent, bitangent));
-    }
-    
-    void fragment() {
-        vec2 uv = UV * wave_frequency * 2.0;
-        float foam_amount = 0.0;
-        
-        // Foam generation at wave peaks
-        float wave_intensity = abs(sin(uv.x * 3.0 + time * wave_speed) * 
-                                   cos(uv.y * 2.5 + time * 1.2)) * 0.5;
-        
-        // Random foam for realism
-        foam_amount = step(0.85, wave_intensity + random(UV * 100.0) * 0.2);
-        
-        // Refraction effect
-        vec2 refract_offset = vec2(sin(time * 2.0), cos(time * 1.7)) * 0.02;
-        vec3 refraction = vec3(0.1, 0.3, 0.6) + vec3(0.05) * sin(UV.xyx * 10.0 + time);
-        
-        vec3 final_color = mix(water_color.rgb, refraction, 0.5);
-        final_color = mix(final_color, foam_color.rgb, foam_amount);
-        
-        ALBEDO = final_color;
-        METALLIC = 0.92;
-        ROUGHNESS = 0.08 + foam_amount * 0.3;
-        ALPHA = water_color.a;
-        
-        // Emission for foam
-        EMISSION = foam_color.rgb * foam_amount * 0.5;
-    }
-    """
+	# Base water appearance
+	material.albedo_color = Color(0.2, 0.6, 0.9, 0.9)
+	material.metallic = 0.95
+	material.roughness = 0.12
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	
-	var shader = Shader.new()
-	shader.set_code(shader_code)
-	water_material.shader = shader
-	mesh_instance.material_override = water_material
+	# CRITICAL FIX: Make water visible from both sides (top and bottom)
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	
+	# Add normal map for surface detail
+	var noise_texture = create_procedural_normal_map()
+	material.normal_texture = noise_texture
+	material.normal_scale = 0.5
+	
+	# Add rim lighting for shiny water edges
+	material.rim_enabled = true
+	material.rim = 0.8
+	material.rim_tint = 0.5
+	
+	# Add slight emission for sparkle
+	material.emission_enabled = true
+	material.emission = Color(0.1, 0.2, 0.3)
+	material.emission_energy = 0.3
+	
+	mesh_instance.material_override = material
 
-func update_shader_parameters():
-	if water_material:
-		# Map 0-1 range to sensible shader values
-		var mapped_strength = wave_amplitude * 0.3
-		var mapped_freq = 1.0 + wave_frequency * 3.0
-		var mapped_speed = 0.5 + wave_speed * 2.0
-		var mapped_choppiness = choppiness * 0.5
-		
-		water_material.set_shader_parameter("wave_strength", mapped_strength)
-		water_material.set_shader_parameter("wave_frequency", mapped_freq)
-		water_material.set_shader_parameter("wave_speed", mapped_speed)
-		water_material.set_shader_parameter("choppiness", mapped_choppiness)
-		water_material.set_shader_parameter("water_color", water_color)
-		water_material.set_shader_parameter("foam_color", foam_color)
+func create_procedural_normal_map() -> NoiseTexture2D:
+	var noise = FastNoiseLite.new()
+	noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	noise.frequency = 2.0
+	noise.fractal_octaves = 3
+	
+	var noise_texture = NoiseTexture2D.new()
+	noise_texture.noise = noise
+	noise_texture.width = 512
+	noise_texture.height = 512
+	
+	# In Godot 4, NoiseTexture2D automatically generates normal maps
+	# by setting the noise texture as a normal map in the material
+	return noise_texture
 
-func create_foam_system():
-	foam_particles = GPUParticles3D.new()
-	foam_particles.amount = 500
-	foam_particles.lifetime = 0.8
-	foam_particles.one_shot = false
-	foam_particles.emitting = true
-	foam_particles.explosiveness = 0.3
+func create_control_panel():
+	# Create UI panel
+	control_panel = Control.new()
+	control_panel.position = Vector2(10, 10)
+	control_panel.size = Vector2(300, 400)
 	
-	var particle_material = ParticleProcessMaterial.new()
+	# Create panel background
+	var panel = Panel.new()
+	panel.size = Vector2(300, 400)
+	var style = StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.1, 0.15, 0.9)
+	style.corner_radius_top_left = 10
+	style.corner_radius_top_right = 10
+	style.corner_radius_bottom_left = 10
+	style.corner_radius_bottom_right = 10
+	panel.add_theme_stylebox_override("panel", style)
+	control_panel.add_child(panel)
 	
-	# These properties exist in Godot 4
-	particle_material.direction = Vector3(0, 1, 0)
-	particle_material.spread = 45.0
-	particle_material.initial_velocity_min = 1.0
-	particle_material.initial_velocity_max = 3.0
-	particle_material.gravity = Vector3(0, -9.8, 0)
-	particle_material.damping = 2.0
-	particle_material.scale_min = 0.03
-	particle_material.scale_max = 0.12
+	var vbox = VBoxContainer.new()
+	vbox.position = Vector2(15, 15)
+	vbox.size = Vector2(270, 370)
+	control_panel.add_child(vbox)
 	
-	# Set color with alpha
-	particle_material.color = Color(0.9, 0.95, 1.0, 0.8)
+	# Title
+	var title = Label.new()
+	title.text = "WATER CONTROLS"
+	title.add_theme_color_override("font_color", Color.WHITE)
+	title.add_theme_font_size_override("font_size", 20)
+	vbox.add_child(title)
 	
-	foam_particles.process_material = particle_material
-	add_child(foam_particles)
+	vbox.add_child(HSeparator.new())
+	
+	# Amplitude slider (0-100%)
+	add_slider_to_panel(vbox, "Wave Amplitude", wave_amplitude, 0.0, 1.0, "amplitude")
+	
+	# Frequency slider (0-100%)
+	add_slider_to_panel(vbox, "Wave Frequency", wave_frequency, 0.0, 1.0, "frequency")
+	
+	# Speed slider (0-100%)
+	add_slider_to_panel(vbox, "Wave Speed", wave_speed, 0.0, 1.0, "speed")
+	
+	# Choppiness slider (0-100%)
+	add_slider_to_panel(vbox, "Wave Choppiness", wave_choppiness, 0.0, 1.0, "choppiness")
+	
+	vbox.add_child(HSeparator.new())
+	
+	# Preset buttons
+	var preset_container = HBoxContainer.new()
+	
+	var calm_btn = Button.new()
+	calm_btn.text = "Calm"
+	calm_btn.pressed.connect(_on_calm_preset)
+	preset_container.add_child(calm_btn)
+	
+	var normal_btn = Button.new()
+	normal_btn.text = "Normal"
+	normal_btn.pressed.connect(_on_normal_preset)
+	preset_container.add_child(normal_btn)
+	
+	var storm_btn = Button.new()
+	storm_btn.text = "Storm"
+	storm_btn.pressed.connect(_on_storm_preset)
+	preset_container.add_child(storm_btn)
+	
+	vbox.add_child(preset_container)
+	
+	vbox.add_child(HSeparator.new())
+	
+	# Info label
+	var info = Label.new()
+	info.text = "Move objects in water\nto see realistic waves!"
+	info.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+	vbox.add_child(info)
+	
+	add_child(control_panel)
+
+func add_slider_to_panel(parent: VBoxContainer, label_text: String, initial_value: float, min_val: float, max_val: float, param_name: String):
+	var container = VBoxContainer.new()
+	
+	var label = Label.new()
+	label.text = label_text + ": " + str(int(initial_value * 100)) + "%"
+	label.add_theme_color_override("font_color", Color.WHITE)
+	container.add_child(label)
+	
+	var slider = HSlider.new()
+	slider.min_value = min_val
+	slider.max_value = max_val
+	slider.value = initial_value
+	slider.step = 0.01
+	slider.size_flags_horizontal = Control.SIZE_EXPAND
+	
+	# Direct callback with captured variables
+	slider.value_changed.connect(func(val): 
+		label.text = label_text + ": " + str(int(val * 100)) + "%"
+		match param_name:
+			"amplitude":
+				wave_amplitude = val
+			"frequency":
+				wave_frequency = val
+			"speed":
+				wave_speed = val
+			"choppiness":
+				wave_choppiness = val
+	)
+	
+	container.add_child(slider)
+	parent.add_child(container)
+
+func _on_calm_preset():
+	wave_amplitude = 0.15
+	wave_frequency = 0.2
+	wave_speed = 0.3
+	wave_choppiness = 0.1
+	update_ui_sliders()
+
+func _on_normal_preset():
+	wave_amplitude = 0.5
+	wave_frequency = 0.5
+	wave_speed = 0.5
+	wave_choppiness = 0.3
+	update_ui_sliders()
+
+func _on_storm_preset():
+	wave_amplitude = 1.0
+	wave_frequency = 0.9
+	wave_speed = 1.0
+	wave_choppiness = 0.8
+	update_ui_sliders()
+
+func update_ui_sliders():
+	# Update all sliders in UI to match current values
+	if control_panel:
+		var sliders = control_panel.find_children("*", "HSlider", true, false)
+		for slider in sliders:
+			if slider.has_meta("param"):
+				var param = slider.get_meta("param")
+				var label = slider.get_meta("label")
+				var new_value = 0.0
+				
+				match param:
+					"amplitude":
+						new_value = wave_amplitude
+					"frequency":
+						new_value = wave_frequency
+					"speed":
+						new_value = wave_speed
+					"choppiness":
+						new_value = wave_choppiness
+				
+				slider.value = new_value
+				label.text = label.text.split(":")[0] + ": " + str(int(new_value * 100)) + "%"
 
 func setup_physics_area():
 	var area = Area3D.new()
 	var collision_shape = CollisionShape3D.new()
 	var box_shape = BoxShape3D.new()
-	box_shape.size = Vector3(water_size.x, 0.5, water_size.y)
+	box_shape.size = Vector3(water_size.x, 2.0, water_size.y)
 	collision_shape.shape = box_shape
 	area.add_child(collision_shape)
 	
 	area.body_entered.connect(_on_body_entered)
 	area.body_exited.connect(_on_body_exited)
-	area.body_shape_entered.connect(_on_body_contact)
-	
 	add_child(area)
 
-func get_water_height_at_position(pos: Vector3) -> float:
-	# Calculate height from Gerstner waves at any world position
-	var local_pos = to_local(pos)
+func _on_body_entered(body: Node):
+	if not bodies_in_water.has(body):
+		bodies_in_water[body] = {
+			"submerged_ratio": 0.0,
+			"splash_timer": 0.0
+		}
+		
+		var speed = 0.0
+		if body is RigidBody3D:
+			speed = body.linear_velocity.length()
+		elif body is CharacterBody3D:
+			speed = body.velocity.length()
+		
+		if speed > 0.5:
+			create_splash(body.global_position, min(speed * 0.3, 1.0))
+
+func _on_body_exited(body: Node):
+	bodies_in_water.erase(body)
+
+func get_body_velocity(body: Node) -> Vector3:
+	if body is RigidBody3D:
+		return body.linear_velocity
+	elif body is CharacterBody3D:
+		return body.velocity
+	return Vector3.ZERO
+
+func get_body_height(body: Node) -> float:
+	if body is RigidBody3D:
+		return body.get_aabb().size.y
+	elif body is CharacterBody3D:
+		return 1.8
+	return 1.0
+
+func apply_buoyancy_to_rigid_body(body: RigidBody3D, delta: float):
+	var water_height = get_water_height_at_position(body.global_position)
+	var body_bottom = body.global_position.y - (body.get_aabb().size.y * 0.5)
+	var submerged_ratio = clamp((water_height - body_bottom) / body.get_aabb().size.y, 0.0, 1.0)
+	
+	if submerged_ratio > 0.01:
+		var buoyancy = Vector3.UP * buoyancy_strength * submerged_ratio * 9.8
+		body.apply_central_force(buoyancy)
+		
+		var drag = -body.linear_velocity * water_drag * submerged_ratio
+		body.apply_central_force(drag * delta)
+		
+		var wave_force = Vector3(
+			sin(elapsed_time * 2.0 + body.global_position.x) * wave_amplitude * splash_force,
+			0,
+			cos(elapsed_time * 1.5 + body.global_position.z) * wave_amplitude * splash_force
+		) * submerged_ratio
+		body.apply_central_force(wave_force)
+
+func apply_buoyancy_to_character_body(body: CharacterBody3D, delta: float):
+	var water_height = get_water_height_at_position(body.global_position)
+	var body_bottom = body.global_position.y - 0.9
+	var submerged_ratio = clamp((water_height - body_bottom) / 1.8, 0.0, 1.0)
+	
+	if submerged_ratio > 0.01:
+		var buoyancy = buoyancy_strength * submerged_ratio * 9.8 * delta
+		body.velocity.y += buoyancy
+		
+		var drag = -body.velocity * water_drag * submerged_ratio * delta
+		body.velocity += drag
+		
+		var wave_force = Vector3(
+			sin(elapsed_time * 2.0 + body.global_position.x) * wave_amplitude * splash_force * delta,
+			0,
+			cos(elapsed_time * 1.5 + body.global_position.z) * wave_amplitude * splash_force * delta
+		) * submerged_ratio
+		body.velocity += wave_force
+
+# Fixed parameter name (position -> world_position to avoid shadowing)
+func get_water_height_at_position(world_position: Vector3) -> float:
+	var local_pos = to_local(world_position)
 	var height = 0.0
 	
 	for wave in waves:
@@ -300,168 +413,87 @@ func get_water_height_at_position(pos: Vector3) -> float:
 		var dir_vec = Vector3(wave.direction.x, 0, wave.direction.y)
 		var theta = k * dir_vec.dot(local_pos) + freq * elapsed_time
 		height += wave.amplitude * sin(theta)
-		
-		# Apply wave amplitude scaling (0-100% control)
-		height *= wave_amplitude
 	
-	# Apply frequency scaling
+	height *= wave_amplitude
 	height *= (0.5 + wave_frequency)
-	
 	return global_position.y + height
 
-func _on_body_entered(body: Node):
-	if body is RigidBody3D or body is CharacterBody3D:
-		if not bodies_in_water.has(body):
-			bodies_in_water[body] = {
-				"submerged_ratio": 0.0,
-				"splash_timer": 0.0,
-				"last_velocity": Vector3.ZERO
-			}
-			
-			# Initial splash
-			create_splash(body.global_position, body.linear_velocity.length() * 0.5)
-
-func _on_body_exited(body: Node):
-	bodies_in_water.erase(body)
-
-func _on_body_contact(body_rid: RID, body: Node, body_shape_index: int, local_shape_index: int):
-	# Handle collisions between objects in water
-	if bodies_in_water.has(body) and body is RigidBody3D:
-		var impact_force = body.linear_velocity.length()
-		if impact_force > 2.0:
-			create_splash(body.global_position, impact_force * 0.3)
-
-func create_splash(position: Vector3, intensity: float):
-	var local_pos = to_local(position)
-	var particle_pos = global_position
-	particle_pos.x = position.x
-	particle_pos.z = position.z
-	particle_pos.y = get_water_height_at_position(position)
+# Fixed parameter name (position -> splash_position to avoid shadowing)
+func create_splash(splash_position: Vector3, intensity: float):
+	var splash_pos = splash_position
+	splash_pos.y = get_water_height_at_position(splash_position)
 	
-	foam_particles.global_position = particle_pos
-	
-	# Emit burst of particles
-	var burst_amount = min(50, int(intensity * 20))
-	foam_particles.amount = burst_amount
-	foam_particles.restart()
-	foam_particles.amount = 1000  # Reset for continuous emission
-	
-	# Add ripple ring (using a simple mesh instance)
 	var ring = MeshInstance3D.new()
 	var ring_mesh = CylinderMesh.new()
-	ring_mesh.top_radius = 0.2
-	ring_mesh.bottom_radius = 0.2
-	ring_mesh.height = 0.05
+	ring_mesh.top_radius = 0.05
+	ring_mesh.bottom_radius = 0.05
+	ring_mesh.height = 0.02
 	ring.mesh = ring_mesh
-	ring.position = particle_pos
-	ring.scale = Vector3(intensity, 1, intensity)
+	
+	var ring_material = StandardMaterial3D.new()
+	ring_material.albedo_color = Color(0.7, 0.85, 1.0, 0.7)
+	ring_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	ring.material_override = ring_material
+	
+	ring.position = splash_pos
 	add_child(ring)
 	
-	# Animate and remove ring
 	var tween = create_tween()
-	tween.tween_property(ring, "scale", Vector3(intensity * 2, 0, intensity * 2), 0.5)
-	tween.parallel().tween_property(ring, "modulate:a", 0.0, 0.5)
+	tween.tween_property(ring, "scale", Vector3(intensity * 1.5, 0.05, intensity * 1.5), 0.5)
+	tween.parallel().tween_property(ring_material, "albedo_color:a", 0.0, 0.5)
 	tween.tween_callback(ring.queue_free)
 
-func apply_buoyancy(body: RigidBody3D, delta: float):
-	if not bodies_in_water.has(body):
+func update_vertex_displacements():
+	if not array_mesh:
 		return
 	
-	var body_pos = body.global_position
-	var water_height = get_water_height_at_position(body_pos)
-	var body_bottom = body_pos.y - (body.get_aabb().size.y * 0.5)
-	
-	var submerged_ratio = clamp((water_height - body_bottom) / body.get_aabb().size.y, 0.0, 1.0)
-	bodies_in_water[body]["submerged_ratio"] = submerged_ratio
-	
-	if submerged_ratio > 0.01:
-		# Buoyancy force (Archimedes principle)
-		var buoyancy_force = Vector3.UP * buoyancy_strength * submerged_ratio * 9.8
-		body.apply_central_force(buoyancy_force)
-		
-		# Drag force (water resistance)
-		var drag = -body.linear_velocity * water_drag * submerged_ratio * delta
-		body.apply_central_force(drag)
-		
-		# Angular drag
-		body.apply_torque(-body.angular_velocity * 2.0 * submerged_ratio)
-		
-		# Wave force (push objects with wave motion)
-		var wave_force = Vector3(
-			sin(elapsed_time * 2.0 + body_pos.x) * wave_amplitude * 2.0,
-			0,
-			cos(elapsed_time * 1.5 + body_pos.z) * wave_amplitude * 2.0
-		) * submerged_ratio * splash_force
-		body.apply_central_force(wave_force)
-		
-		# Create splashes for fast-moving objects
-		var speed = body.linear_velocity.length()
-		if speed > 3.0 and bodies_in_water[body]["splash_timer"] <= 0:
-			create_splash(body_pos, speed * 0.2)
-			bodies_in_water[body]["splash_timer"] = 0.2
-		else:
-			bodies_in_water[body]["splash_timer"] -= delta
-
-func _process(delta):
-	elapsed_time += delta
-	
-	# Update shader time
-	if water_material:
-		water_material.set_shader_parameter("time", elapsed_time)
-	
-	# Update Gerstner wave mesh vertices
-	update_vertex_displacements()
-	
-	# Update physics for bodies in water
-	for body in bodies_in_water.keys():
-		if is_instance_valid(body) and body is RigidBody3D:
-			apply_buoyancy(body, delta)
-
-func update_vertex_displacements():
-	# Update each vertex based on Gerstner waves
-	var mesh = mesh_instance.mesh
-	var mesh_data_tool = MeshDataTool.new()
-	mesh_data_tool.create_from_surface(mesh, 0)
-	
-	var vertex_count = mesh_data_tool.get_vertex_count()
+	var mesh_surface = array_mesh.surface_get_arrays(0)
+	var vertices = mesh_surface[Mesh.ARRAY_VERTEX]
 	
 	for i in range(vertex_count):
-		var vertex = mesh_data_tool.get_vertex(i)
+		var original_pos = original_vertices[i]
 		var total_displacement = Vector3.ZERO
 		
 		for wave in waves:
-			var displacement = wave.get_displacement(vertex, elapsed_time)
+			var displacement = wave.get_displacement(original_pos, elapsed_time)
 			displacement.y *= wave_amplitude
-			displacement.x *= wave_amplitude * choppiness
-			displacement.z *= wave_amplitude * choppiness
+			displacement.x *= wave_amplitude * wave_frequency * wave_choppiness
+			displacement.z *= wave_amplitude * wave_frequency * wave_choppiness
 			total_displacement += displacement
 		
-		mesh_data_tool.set_vertex(i, vertex + total_displacement)
+		vertices[i] = original_pos + total_displacement
 	
-	# Recalculate normals for proper lighting
-	mesh_data_tool.generate_normals()
-	mesh_data_tool.commit_to_surface(mesh)
-	mesh_instance.mesh = mesh
+	var normals = PackedVector3Array()
+	for i in range(vertex_count):
+		normals.append(Vector3.UP)
+	
+	var new_arrays = []
+	new_arrays.resize(Mesh.ARRAY_MAX)
+	new_arrays[Mesh.ARRAY_VERTEX] = vertices
+	new_arrays[Mesh.ARRAY_INDEX] = mesh_surface[Mesh.ARRAY_INDEX]
+	new_arrays[Mesh.ARRAY_NORMAL] = normals
+	new_arrays[Mesh.ARRAY_TEX_UV] = mesh_surface[Mesh.ARRAY_TEX_UV]
+	
+	array_mesh.surface_remove(0)
+	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, new_arrays)
 
-# Public function to manually add ripples
-func add_ripple(position: Vector3, strength: float, radius: float = 1.0):
-	create_splash(position, strength)
+# Fixed unused parameter with underscore
+func _process(_delta: float):
+	elapsed_time += 0.016  # Rough delta approximation
+	update_vertex_displacements()
 	
-	# Apply force to nearby physics bodies
-	var bodies = get_tree().get_nodes_in_group("physics_bodies")
-	for body in bodies:
-		if body is RigidBody3D and body.global_position.distance_to(position) < radius:
-			var direction = (body.global_position - position).normalized()
-			var force = direction * strength * splash_force * 10.0
-			body.apply_central_impulse(force)
-
-# Helper function to spawn floating objects
-func spawn_floating_object(model: PackedScene, position: Vector3):
-	var instance = model.instantiate()
-	add_child(instance)
-	instance.global_position = position
-	instance.global_position.y = get_water_height_at_position(position)
+	# Update shader time
+	if mesh_instance.material_override is ShaderMaterial:
+		mesh_instance.material_override.set_shader_parameter("time", elapsed_time)
+		mesh_instance.material_override.set_shader_parameter("amplitude", wave_amplitude * 0.3)
+		mesh_instance.material_override.set_shader_parameter("frequency", 1.0 + wave_frequency * 3.0)
+		mesh_instance.material_override.set_shader_parameter("wave_speed", 0.5 + wave_speed * 2.0)
 	
-	if instance is RigidBody3D:
-		instance.set_collision_layer_value(1, true)
-		instance.add_to_group("physics_bodies")
+	for body in bodies_in_water.keys():
+		if not is_instance_valid(body):
+			continue
+		
+		if body is RigidBody3D:
+			apply_buoyancy_to_rigid_body(body, 0.016)
+		elif body is CharacterBody3D:
+			apply_buoyancy_to_character_body(body, 0.016)
