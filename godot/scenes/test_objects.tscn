@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/objects/boat_controller.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/objects/floating_crate.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/effects/wake_particle.gd" id="3"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_boat"]
+size = Vector3(2, 0.5, 1)
+material = SubResource("BoatMaterial")
+
+[node name="TestBoat" type="RigidBody3D"]
+script = ExtResource("1")
+water_physics = NodePath("/root/WaterWorld/WaterPhysics")
+buoyancy_strength = 15.0
+mass = 200.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_boat")
+position = Vector3(0, 0, 0)
+
+[node name="WakeParticles" type="GPUParticles3D" parent="."]
+script = ExtResource("3")
+water_physics = NodePath("/root/WaterWorld/WaterPhysics")
+follow_object = NodePath("..")
+
+[node name="FloatingCrate1" type="RigidBody3D" parent="."]
+script = ExtResource("2")
+water_physics = NodePath("/root/WaterWorld/WaterPhysics")
+buoyancy_strength = 8.0
+mass = 50.0
+position = Vector3(-5, 1, -3)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="FloatingCrate1"]
+mesh = SubResource("BoxMesh_crate")

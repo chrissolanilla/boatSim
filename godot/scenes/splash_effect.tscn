@@ -1,0 +1,25 @@
+[gd_scene format=3 uid="uid://b2s54stnoacin"]
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_hibys"]
+direction = Vector3(0, 1, 0)
+spread = 90.0
+initial_velocity_min = 3.0
+initial_velocity_max = 6.0
+angular_velocity_min = -180.00002
+angular_velocity_max = 359.99997
+scale_min = 0.19999999
+scale_max = 0.5
+
+[sub_resource type="QuadMesh" id="QuadMesh_hdb52"]
+size = Vector2(0.1, 0.1)
+
+[node name="SplashEffect" type="Node3D" unique_id=1177536146]
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=1995842107]
+emitting = false
+amount = 30
+one_shot = true
+speed_scale = 0.5
+explosiveness = 0.5
+process_material = SubResource("ParticleProcessMaterial_hibys")
+draw_pass_1 = SubResource("QuadMesh_hdb52")

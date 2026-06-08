@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://bv57cd6lt4l20"]
+
+[ext_resource type="Script" uid="uid://tqa8gqh0ajj1" path="res://scripts/water/advanced_water_physics.gd" id="1"]
+[ext_resource type="Script" uid="uid://bn0rmrvb218h8" path="res://scripts/water/water_interaction_layer.gd" id="2"]
+
+[sub_resource type="Environment" id="Environment_wvjs5"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_wvjs5"]
+
+[node name="WaterWorld" type="Node3D" unique_id=1670880832]
+
+[node name="WaterPhysics" type="Node3D" parent="." unique_id=620120625]
+script = ExtResource("1")
+
+[node name="InteractionLayer" type="Node3D" parent="." unique_id=706599854 node_paths=PackedStringArray("water_physics")]
+script = ExtResource("2")
+water_physics = NodePath("../WaterPhysics")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=213344581]
+environment = SubResource("Environment_wvjs5")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=551133525]
+transform = Transform3D(0.8660254, -0.35355338, 0.35355338, 0, 0.70710677, 0.70710677, -0.5, -0.6123724, 0.6123724, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=2126045324]
+transform = Transform3D(1, 0, 0, 0, 0.8660254, 0.5, 0, -0.5, 0.8660254, 0, 15, 20)
+
+[node name="TestCube" type="RigidBody3D" parent="." unique_id=2135397739]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="TestCube" unique_id=1867923041]
+mesh = SubResource("BoxMesh_wvjs5")
