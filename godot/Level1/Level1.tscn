@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cy3l7uhu0nryo" path="res://Level1/level_1.gd" id="1_4bnji"]
 [ext_resource type="PackedScene" uid="uid://c7mn0uo5ixu7h" path="res://buoy/buoy.tscn" id="1_yr1vs"]
 [ext_resource type="PackedScene" uid="uid://cyqcpfasocaus" path="res://Player/Player.tscn" id="2_axawr"]
+[ext_resource type="Script" uid="uid://p65jiu08lhic" path="res://Level1/physics.gd" id="3_btw7m"]
 [ext_resource type="Script" uid="uid://cxtsp3b3p1436" path="res://Level1/ui_buoys.gd" id="4_22xjp"]
 [ext_resource type="Script" uid="uid://c08v3w0x1ea5f" path="res://Level1/ui_cordinates.gd" id="5_iits7"]
 
@@ -58,7 +59,6 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_whtys")
 
 [node name="Level1" type="Node3D" unique_id=1519677643]
-visible = false
 script = ExtResource("1_4bnji")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1997583716]
@@ -70,6 +70,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0504665, 0, 3.1714969)
 [node name="Buoys" type="Node3D" parent="." unique_id=792981978]
 
 [node name="Water" type="Node3D" parent="." unique_id=1651675491]
+script = ExtResource("3_btw7m")
 
 [node name="ObjectsTest" type="Node3D" parent="." unique_id=1559894640]
 

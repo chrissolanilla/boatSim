@@ -19,14 +19,14 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
-	
+
 func set_buoy_names(names: Array[String]) -> void:
 	buoy_names = names
-	
+
 func add_buoy_label(label_text: String, world_pos: Vector3) -> Label3D:
 	var label := Label3D.new()
 	label.text = label_text
-	
+
 	label.position = world_pos + Vector3(0, 35, 0)
 
 	label.font_size = 1000
@@ -43,7 +43,7 @@ func add_buoy_label(label_text: String, world_pos: Vector3) -> Label3D:
 
 	buoys.add_child(label)
 	return label
-	
+
 func spawn_buoys(amount: int) -> void:
 	num_buoys = amount
 	for buoy in buoys_arr:
@@ -56,11 +56,12 @@ func spawn_buoys(amount: int) -> void:
 
 	for i in range(num_buoys):
 		var instance = buoy_scene.instantiate()
+		instance.visible = true
 		buoys.add_child(instance)
 		instance.position = Vector3(i * 5, 5, 0)
 		instance.scale = Vector3(20, 20, 20)
 		buoys_arr.append(instance)
-		
+
 func _on_submit_n_buoys_pressed() -> void:
 	num_buoys = int(n_buoy.text)
 	print(num_buoys, " IS THE NUMB BUOYS")
@@ -69,14 +70,14 @@ func _on_submit_n_buoys_pressed() -> void:
 		self.visible = false
 		buoy_count_submitted.emit(num_buoys)
 		spawn_buoys(num_buoys)
-			
+
 func set_buoy_positions(coordinates: Array[Vector2]) -> void:
 	if coordinates.is_empty():
 		return
-		
+
 	for label in buoy_labels_arr:
 		label.queue_free()
-		
+
 	buoy_labels_arr.clear()
 	var origin := coordinates[0]
 	for i in range(coordinates.size()):
