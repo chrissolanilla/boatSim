@@ -1,4 +1,5 @@
 extends Node3D
+class_name AdvancedWaterPhysics
 
 @export var resolution: int = 256
 @export var water_size: float = 100.0
@@ -30,7 +31,7 @@ func _setup_water():
 		water_mesh.mesh = plane_mesh
 		add_child(water_mesh)
 		water_mesh.owner = get_tree().edited_scene_root if get_tree().edited_scene_root else self
-	
+
 	# Create material
 	var shader = preload("res://shaders/water_visual.gdshader")
 	if shader:
@@ -42,14 +43,14 @@ func _setup_water():
 		water_material.set_shader_parameter("time", time)
 		water_material.set_shader_parameter("foam_intensity", 0.5)
 		water_material.set_shader_parameter("transparency", 0.85)
-		water_material.set_shader_parameter("fresnel_power", 5.0)
+		water_material.set_shader_parameter("fresnel_strength", 5.0)
 		water_material.set_shader_parameter("reflection_intensity", 0.7)
-		
+
 		# Create placeholder texture for heightmap (will be updated by compute shader later)
 		var placeholder_texture = create_placeholder_texture()
 		water_material.set_shader_parameter("heightmap_texture", placeholder_texture)
 		water_material.set_shader_parameter("foam_texture", placeholder_texture)
-		
+
 		water_mesh.material_override = water_material
 		print("Water material created successfully")
 	else:
@@ -63,7 +64,7 @@ func create_placeholder_texture():
 			var height = sin(x * 0.05) * cos(y * 0.05) * 0.5 + 0.5
 			var color_value = int(height * 255)
 			image.set_pixel(x, y, Color(color_value/255.0, color_value/255.0, color_value/255.0, 1.0))
-	
+
 	return ImageTexture.create_from_image(image)
 
 func _process(delta):
