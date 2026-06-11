@@ -76,7 +76,6 @@ water_path = NodePath("../Water")
 
 [node name="Water" type="Node3D" parent="." unique_id=1651675491]
 script = ExtResource("3_btw7m")
-water_size = Vector2(5000, 5000)
 
 [node name="ObjectsTest" type="Node3D" parent="." unique_id=1559894640]
 

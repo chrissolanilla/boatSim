@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://fhq3ls5w3ud8"]
+
+[ext_resource type="PackedScene" uid="uid://cwjx2jv8dn8q7" path="res://Boat/Boat.tscn" id="1_q3vu3"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_q3vu3"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_vpr75"]
+sky_material = SubResource("ProceduralSkyMaterial_q3vu3")
+
+[sub_resource type="Environment" id="Environment_m2rmg"]
+background_mode = 2
+sky = SubResource("Sky_vpr75")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="Level2" type="Node3D" unique_id=679513796]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=762306985]
+environment = SubResource("Environment_m2rmg")
+
+[node name="Boat" parent="." unique_id=153129346 instance=ExtResource("1_q3vu3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4412585, 1.1920929e-07, -1.8895545)
