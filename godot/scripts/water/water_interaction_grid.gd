@@ -41,17 +41,17 @@ func get_interaction_state(world_position: Vector3) -> Dictionary:
 	if not enabled:
 		return _default_state()
 
-	var state := _default_state()
+	var state: Dictionary = _default_state()
 
 	for disturbance in disturbances:
-		var offset := world_position - disturbance["position"]
-		var planar_distance := Vector2(offset.x, offset.z).length()
+		var offset: Vector3 = world_position - disturbance["position"]
+		var planar_distance: float = Vector2(offset.x, offset.z).length()
 		var radius: float = disturbance["radius"]
 
 		if planar_distance > radius:
 			continue
 
-		var falloff := 1.0 - (planar_distance / radius)
+		var falloff: float = 1.0 - (planar_distance / radius)
 		state["wake_strength"] += disturbance["strength"] * falloff
 		state["dirty_water"] += disturbance["dirty_water"] * falloff
 		state["prop_wash"] += disturbance["prop_wash"] * falloff
