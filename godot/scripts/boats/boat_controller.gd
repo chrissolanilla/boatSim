@@ -6,7 +6,7 @@ class_name BoatController
 
 @export_group("Mass")
 @export_range(1.0, 100000.0) var hull_mass: float = 1800.0
-@export var hull_center_of_mass_local: Vector3 = Vector3(0.0, -0.45, 0.0)
+@export var hull_center_of_mass_local: Vector3 = Vector3(0.0, -1.0, 0.0)
 @export var weight_boxes: Array[BoatWeightBox] = []
 
 @export_group("Drive")
@@ -16,31 +16,34 @@ class_name BoatController
 @export_range(0.1, 20.0) var turn_smoothing: float = 4.0
 
 @export_group("Water")
-@export_range(0.0, 100.0) var drag: float = 2.5
-@export_range(0.0, 100.0) var angular_drag: float = 7.5
-@export_range(0.0, 50000.0) var buoyancy_strength: float = 6500.0
-@export_range(0.01, 5.0) var max_submersion_depth: float = 0.85
-@export_range(0.0, 100.0) var buoyancy_damping: float = 14.0
-@export_range(0.0, 1.0) var buoyancy_normal_influence: float = 0.18
+@export_range(0.0, 100.0) var drag: float = 4.0
+@export_range(0.0, 100.0) var angular_drag: float = 18.0
+@export_range(0.0, 50000.0) var buoyancy_strength: float = 14000.0
+@export_range(0.01, 5.0) var max_submersion_depth: float = 1.3
+@export_range(0.0, 100.0) var buoyancy_damping: float = 28.0
+@export_range(0.0, 1.0) var buoyancy_normal_influence: float = 0.0
 @export var buoyancy_points: Array[Vector3] = [
-	Vector3(-1.5, -0.6, -2.4),
-	Vector3(1.5, -0.6, -2.4),
-	Vector3(-1.5, -0.6, 2.4),
-	Vector3(1.5, -0.6, 2.4),
-	Vector3(0.0, -0.7, 0.0),
+	Vector3(-1.65, -0.72, -2.45),
+	Vector3(1.65, -0.72, -2.45),
+	Vector3(-1.65, -0.72, 2.45),
+	Vector3(1.65, -0.72, 2.45),
+	Vector3(0.0, -0.85, 0.0),
 ]
 
 @export_group("Stability")
-@export_range(0.0, 10000.0) var upright_stiffness: float = 2600.0
-@export_range(0.0, 1000.0) var upright_damping: float = 220.0
+@export_range(0.0, 10000.0) var upright_stiffness: float = 8000.0
+@export_range(0.0, 1000.0) var upright_damping: float = 700.0
 
 @export_group("Camera")
-@export_range(1.0, 50.0) var camera_distance: float = 15.0
-@export_range(1.0, 20.0) var camera_height: float = 5.5
-@export_range(0.0, 20.0) var camera_look_height: float = 1.4
-@export_range(0.0, 20.0) var camera_look_ahead: float = 4.0
+@export_range(1.0, 50.0) var camera_distance: float = 18.0
+@export_range(1.0, 20.0) var camera_height: float = 6.5
+@export_range(0.0, 20.0) var camera_look_height: float = 1.8
+@export_range(0.0, 20.0) var camera_look_ahead: float = 0.5
 @export_range(0.1, 20.0) var camera_position_smoothing: float = 4.5
 @export_range(0.1, 20.0) var camera_rotation_smoothing: float = 5.0
+@export_range(0.0001, 0.02) var camera_mouse_sensitivity: float = 0.005
+@export_range(-85.0, 0.0) var camera_min_pitch_degrees: float = -35.0
+@export_range(0.0, 85.0) var camera_max_pitch_degrees: float = 20.0
 
 @export_group("Debug")
 @export_range(1.0, 100.0) var reset_height_above_water: float = 2.5
@@ -59,6 +62,9 @@ var spawn_position: Vector3
 var spawn_yaw: float = 0.0
 var upside_down_timer: float = 0.0
 var camera_forward: Vector3 = Vector3.FORWARD
+var camera_yaw: float = 0.0
+var camera_pitch: float = deg_to_rad(-12.0)
+var mouse_captured: bool = false
 
 
 func _ready() -> void:
@@ -73,11 +79,23 @@ func _ready() -> void:
 	angular_damp = 0.0
 	if camera_3d:
 		camera_3d.top_level = true
+		camera_3d.near = 0.05
 	_update_mass_properties()
+	_align_camera_to_boat()
 	set_control_enabled(control_enabled)
 
 
 func _input(event: InputEvent) -> void:
+	if control_enabled and event.is_action_pressed("ui_cancel"):
+		toggle_mouse_capture()
+		return
+
+	if control_enabled and mouse_captured and event is InputEventMouseMotion:
+		camera_yaw -= event.relative.x * camera_mouse_sensitivity
+		camera_pitch -= event.relative.y * camera_mouse_sensitivity
+		camera_pitch = clamp(camera_pitch, deg_to_rad(camera_min_pitch_degrees), deg_to_rad(camera_max_pitch_degrees))
+		return
+
 	if event.is_action_pressed("reset_boat"):
 		reset_boat()
 
@@ -104,6 +122,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 func set_control_enabled(enabled: bool) -> void:
 	control_enabled = enabled
 	if camera_3d:
+		if enabled:
+			_align_camera_to_boat()
+			_snap_camera_to_chase_position()
+			capture_mouse()
+		else:
+			release_mouse()
 		camera_3d.current = enabled
 
 
@@ -241,22 +265,63 @@ func _update_camera(delta: float) -> void:
 	if not camera_3d:
 		return
 
-	var flat_forward := -global_transform.basis.z
-	flat_forward.y = 0.0
-	if flat_forward.length_squared() > 0.0001:
-		camera_forward = flat_forward.normalized()
-
-	var target_position: Vector3 = global_position - camera_forward * camera_distance + Vector3.UP * camera_height
+	var orbit_basis := Basis.from_euler(Vector3(camera_pitch, camera_yaw, 0.0))
+	var orbit_offset := orbit_basis * Vector3(0.0, camera_height, camera_distance)
+	var target_position: Vector3 = global_position + orbit_offset
 	var blend: float = clamp(camera_position_smoothing * delta, 0.0, 1.0)
 	if camera_3d.global_position == Vector3.ZERO:
 		camera_3d.global_position = target_position
 	else:
 		camera_3d.global_position = camera_3d.global_position.lerp(target_position, blend)
 
-	var look_target: Vector3 = global_position + Vector3.UP * camera_look_height + (-global_transform.basis.z.normalized() * camera_look_ahead)
+	var boat_forward := -global_transform.basis.z.normalized()
+	var look_target: Vector3 = global_position + Vector3.UP * camera_look_height
+	look_target += boat_forward * camera_look_ahead
 	var target_basis: Basis = Basis.looking_at((look_target - camera_3d.global_position).normalized(), Vector3.UP, true)
 	var rotation_blend: float = clamp(camera_rotation_smoothing * delta, 0.0, 1.0)
 	camera_3d.global_basis = camera_3d.global_basis.slerp(target_basis, rotation_blend)
+
+
+func _snap_camera_to_chase_position() -> void:
+	if not camera_3d:
+		return
+
+	var orbit_basis := Basis.from_euler(Vector3(camera_pitch, camera_yaw, 0.0))
+	var orbit_offset := orbit_basis * Vector3(0.0, camera_height, camera_distance)
+	var target_position: Vector3 = global_position + orbit_offset
+	var boat_forward := -global_transform.basis.z.normalized()
+	var look_target: Vector3 = global_position + Vector3.UP * camera_look_height
+	look_target += boat_forward * camera_look_ahead
+	camera_3d.global_position = target_position
+	camera_3d.look_at(look_target, Vector3.UP)
+
+
+func _align_camera_to_boat() -> void:
+	var boat_forward := -global_transform.basis.z
+	boat_forward.y = 0.0
+	if boat_forward.length_squared() <= 0.0001:
+		return
+
+	boat_forward = boat_forward.normalized()
+	camera_forward = boat_forward
+	camera_yaw = atan2(-boat_forward.x, -boat_forward.z)
+
+
+func capture_mouse() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	mouse_captured = true
+
+
+func release_mouse() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	mouse_captured = false
+
+
+func toggle_mouse_capture() -> void:
+	if mouse_captured:
+		release_mouse()
+	else:
+		capture_mouse()
 
 
 func _check_auto_reset(delta: float) -> void:
