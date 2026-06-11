@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://bv57cd6lt4l20"]
 
-[ext_resource type="Script" uid="uid://30uhbcpfegnn" path="res://scripts/water/water_manager.gd" id="1_wvjs5"]
-[ext_resource type="Script" uid="uid://bn0rmrvb218h8" path="res://scripts/water/water_interaction_layer.gd" id="2"]
-[ext_resource type="Script" uid="uid://dy053yogel2xe" path="res://scripts/water/splash_manager.gd" id="2_kou7u"]
-[ext_resource type="Script" uid="uid://bkp5g4e60vjvf" path="res://scripts/camera_control.gd" id="3_iocgp"]
-[ext_resource type="Script" uid="uid://diq3l2foufqiy" path="res://scripts/objects/buoyant_object.gd" id="3_xtxgm"]
+[ext_resource type="Script" uid="uid://30uhbcpfegnn" path="res://prototypes/water_lab/scripts/water_manager_prototype.gd" id="1_wvjs5"]
+[ext_resource type="Script" uid="uid://bn0rmrvb218h8" path="res://prototypes/water_lab/scripts/water_interaction_layer_prototype.gd" id="2"]
+[ext_resource type="Script" uid="uid://dy053yogel2xe" path="res://prototypes/water_lab/scripts/splash_manager_prototype.gd" id="2_kou7u"]
+[ext_resource type="Script" uid="uid://bkp5g4e60vjvf" path="res://prototypes/water_lab/scripts/camera_control_prototype.gd" id="3_iocgp"]
+[ext_resource type="Script" uid="uid://diq3l2foufqiy" path="res://prototypes/water_lab/scripts/buoyant_object_prototype.gd" id="3_xtxgm"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_iocgp"]
 
