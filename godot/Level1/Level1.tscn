@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cy3l7uhu0nryo" path="res://Level1/level_1.gd" id="1_4bnji"]
 [ext_resource type="PackedScene" uid="uid://c7mn0uo5ixu7h" path="res://buoy/buoy.tscn" id="1_yr1vs"]
 [ext_resource type="PackedScene" uid="uid://cyqcpfasocaus" path="res://Player/Player.tscn" id="2_axawr"]
+[ext_resource type="PackedScene" uid="uid://cwjx2jv8dn8q7" path="res://Boat/Boat.tscn" id="2_wv7g7"]
 [ext_resource type="Script" uid="uid://p65jiu08lhic" path="res://Level1/physics.gd" id="3_btw7m"]
 [ext_resource type="Script" uid="uid://cxtsp3b3p1436" path="res://Level1/ui_buoys.gd" id="4_22xjp"]
 [ext_resource type="Script" uid="uid://c08v3w0x1ea5f" path="res://Level1/ui_cordinates.gd" id="5_iits7"]
@@ -66,6 +67,10 @@ environment = SubResource("Environment_4bnji")
 
 [node name="Player" parent="." unique_id=191308926 instance=ExtResource("2_axawr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0504665, 0, 3.1714969)
+
+[node name="Boat" parent="." instance=ExtResource("2_wv7g7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 1.5, 0)
+water_path = NodePath("../Water")
 
 [node name="Buoys" type="Node3D" parent="." unique_id=792981978]
 

@@ -5,9 +5,12 @@ extends Node3D
 # just like move the ones up to the ones they need and hide the rest.
 @onready var n_buoys: CanvasLayer = $n_buoys
 @onready var buoy_coordinates: CanvasLayer = $buoy_coordinates
+@onready var player: CharacterBody3D = $Player
+@onready var boat: BoatController = $Boat
 @export var debug_load_buoys_from_file := true
 @export var debug_buoy_file_path := "res://Level1/defaultCords.txt"
 var debug_buoy_names: Array[String] = []
+var controlling_boat: bool = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -27,9 +30,14 @@ func _ready() -> void:
 	print("local size: ", aabb.size)
 	print("global scale: ", mesh_instance.global_scale)
 	print("THE THING IS: ", get_global_aabb_size(mesh_instance))
+	_set_control_target(false)
 	if debug_load_buoys_from_file:
 		load_debug_buoys()
-		return
+
+
+func _input(event: InputEvent) -> void:
+	if event.is_action_pressed("switch_control"):
+		_set_control_target(not controlling_boat)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -62,6 +70,14 @@ func load_debug_buoys() -> void:
 	n_buoys.set_buoy_names(debug_buoy_names)
 	n_buoys.spawn_buoys(coordinates.size())
 	n_buoys.set_buoy_positions(coordinates)
+
+
+func _set_control_target(use_boat: bool) -> void:
+	controlling_boat = use_boat
+	if player:
+		player.set_control_enabled(not use_boat)
+	if boat:
+		boat.set_control_enabled(use_boat)
 
 	
 func load_buoy_coordinates_from_file(path: String) -> Array[Vector2]:

@@ -4,18 +4,23 @@ extends CharacterBody3D
 @onready var model: MeshInstance3D = $Object_2
 @onready var model_collision: CollisionShape3D = $CollisionShape3D
 
+@export var control_enabled: bool = true
+
 const SPEED := 500.0
 const SPRINT_SPEED := 1500.0
 const MOUSE_SENSITIVITY := 0.003
 var pitch := 0.0
 
 func _ready() -> void:
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	set_control_enabled(control_enabled)
 	camera_3d.far = 10000
 	# for no clip
 	# model_collision.disabled = true
 
 func _input(event: InputEvent) -> void:
+	if not control_enabled:
+		return
+
 	if event.is_action_pressed("ui_cancel"):
 		toggle_mouse_capture()
 		return
@@ -29,6 +34,10 @@ func _input(event: InputEvent) -> void:
 			camera_3d.rotation.x = pitch
 
 func _physics_process(delta: float) -> void:
+	if not control_enabled:
+		velocity = Vector3.ZERO
+		return
+
 	var direction := Vector3.ZERO
 
 	# forward/back follows where the camera is looking
@@ -67,3 +76,14 @@ func toggle_mouse_capture() -> void:
 		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	else:
 		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+
+func set_control_enabled(enabled: bool) -> void:
+	control_enabled = enabled
+	if camera_3d:
+		camera_3d.current = enabled
+
+	if enabled:
+		Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	else:
+		Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)

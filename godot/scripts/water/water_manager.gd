@@ -101,7 +101,7 @@ func get_water_normal_at_position(world_position: Vector3) -> Vector3:
 	var z_height := get_water_height_at_position(world_position + Vector3(0.0, 0.0, sample))
 	var tangent_x := Vector3(sample, x_height - center_height, 0.0)
 	var tangent_z := Vector3(0.0, z_height - center_height, sample)
-	return tangent_x.cross(tangent_z).normalized()
+	return tangent_z.cross(tangent_x).normalized()
 
 
 func get_water_displacement_at_position(world_position: Vector3) -> Vector3:
