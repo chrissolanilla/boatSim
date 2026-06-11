@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3]
 
-[ext_resource type="Script" path="res://scripts/objects/boat_controller.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/objects/floating_crate.gd" id="2"]
-[ext_resource type="Script" path="res://scripts/effects/wake_particle.gd" id="3"]
+[ext_resource type="Script" path="res://prototypes/water_lab/scripts/boat_controller_prototype.gd" id="1"]
+[ext_resource type="Script" path="res://prototypes/water_lab/scripts/floating_crate_prototype.gd" id="2"]
+[ext_resource type="Script" path="res://prototypes/water_lab/scripts/wake_particle_prototype.gd" id="3"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_boat"]
 size = Vector3(2, 0.5, 1)

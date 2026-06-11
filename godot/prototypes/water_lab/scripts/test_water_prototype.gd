@@ -1,6 +1,6 @@
 #[gd_scene load_steps=4 format=3]
 #
-#[ext_resource type="Script" path="res://scripts/water/advanced_water_physics.gd" id="1"]
+#[ext_resource type="Script" path="res://prototypes/water_lab/scripts/advanced_water_physics_prototype.gd" id="1"]
 #[ext_resource type="Shader" path="res://shaders/water_wave.gdshader" id="2"]
 #
 #[sub_resource type="PlaneMesh" id="PlaneMesh_1"]
