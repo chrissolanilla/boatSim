@@ -35,11 +35,16 @@ class_name WaterManager
 @export var visualize_surface: bool = true
 @export var normal_sample_distance: float = 1.0
 @export var interaction_grid_path: NodePath
+@export_group("Visual Depth")
+@export var show_ocean_floor: bool = true
+@export_range(1.0, 500.0) var ocean_floor_depth: float = 24.0
+@export var ocean_floor_color: Color = Color(0.03, 0.08, 0.12, 1.0)
 
 var gravity: float = 9.81
 var elapsed_time: float = 0.0
 var waves_dirty: bool = true
 var mesh_instance: MeshInstance3D
+var ocean_floor_mesh_instance: MeshInstance3D
 var array_mesh: ArrayMesh
 var original_vertices: Array[Vector3] = []
 var vertex_count: int = 0
@@ -78,6 +83,7 @@ func _ready() -> void:
 	if visualize_surface:
 		_create_water_mesh()
 		_setup_water_material()
+	_setup_ocean_floor()
 
 
 func _process(delta: float) -> void:
@@ -95,7 +101,7 @@ func get_water_height_at_position(world_position: Vector3) -> float:
 
 
 func get_water_normal_at_position(world_position: Vector3) -> Vector3:
-	var sample := max(normal_sample_distance, 0.01)
+	var sample = max(normal_sample_distance, 0.01)
 	var center_height := get_water_height_at_position(world_position)
 	var x_height := get_water_height_at_position(world_position + Vector3(sample, 0.0, 0.0))
 	var z_height := get_water_height_at_position(world_position + Vector3(0.0, 0.0, sample))
@@ -113,7 +119,7 @@ func get_water_displacement_at_position(world_position: Vector3) -> Vector3:
 func get_water_state_at_position(world_position: Vector3) -> Dictionary:
 	var base_displacement := _get_base_displacement_at_position(world_position)
 	var interaction_state := _get_interaction_state(world_position)
-	var displacement := base_displacement + interaction_state["displacement"] + Vector3(0.0, interaction_state["height_offset"], 0.0)
+	var displacement = base_displacement + interaction_state["displacement"] + Vector3(0.0, interaction_state["height_offset"], 0.0)
 
 	return {
 		"world_position": world_position,
@@ -153,7 +159,7 @@ func _rebuild_waves() -> void:
 	var theoretical_speed := sqrt(gravity * wave_length / (2.0 * PI))
 	var actual_speed := wave_speed if wave_speed > 0.0 else theoretical_speed
 	var amplitude := wave_height * 0.5
-	var steepness := min(amplitude / max(wave_length, 0.01), 0.25) * wave_swell
+	var steepness = min(amplitude / max(wave_length, 0.01), 0.25) * wave_swell
 	var rng := RandomNumberGenerator.new()
 	if wave_seed == 0:
 		rng.randomize()
@@ -169,7 +175,7 @@ func _rebuild_waves() -> void:
 		var secondary_amplitude := amplitude * rng.randf_range(0.1, 0.4) * wave_disparity
 		var secondary_length := wave_length * rng.randf_range(0.3, 0.8)
 		var secondary_speed := actual_speed * rng.randf_range(0.6, 1.2)
-		var secondary_steepness := steepness * rng.randf_range(0.2, 0.6)
+		var secondary_steepness = steepness * rng.randf_range(0.2, 0.6)
 		var phase := rng.randf_range(0.0, PI * 2.0)
 		waves.append(GerstnerWave.new(direction, secondary_amplitude, secondary_length, secondary_speed, secondary_steepness, phase))
 
@@ -258,6 +264,32 @@ func _setup_water_material() -> void:
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mesh_instance.material_override = material
+
+
+func _setup_ocean_floor() -> void:
+	if not show_ocean_floor:
+		if ocean_floor_mesh_instance:
+			ocean_floor_mesh_instance.visible = false
+		return
+
+	ocean_floor_mesh_instance = get_node_or_null("OceanFloor") as MeshInstance3D
+	if not ocean_floor_mesh_instance:
+		ocean_floor_mesh_instance = MeshInstance3D.new()
+		ocean_floor_mesh_instance.name = "OceanFloor"
+		add_child(ocean_floor_mesh_instance)
+
+	var floor_mesh := PlaneMesh.new()
+	floor_mesh.size = water_size * 1.35
+	ocean_floor_mesh_instance.mesh = floor_mesh
+	ocean_floor_mesh_instance.position = Vector3(0.0, -ocean_floor_depth, 0.0)
+	ocean_floor_mesh_instance.visible = true
+
+	var floor_material := StandardMaterial3D.new()
+	floor_material.albedo_color = ocean_floor_color
+	floor_material.roughness = 1.0
+	floor_material.metallic = 0.0
+	floor_material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	ocean_floor_mesh_instance.material_override = floor_material
 
 
 func _update_vertex_displacements() -> void:

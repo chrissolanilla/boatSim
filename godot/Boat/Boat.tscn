@@ -1,38 +1,63 @@
 [gd_scene format=3 uid="uid://cwjx2jv8dn8q7"]
 
-[ext_resource type="Script" path="res://scripts/boats/boat_controller.gd" id="1"]
-
-[sub_resource type="BoxMesh" id="1"]
-size = Vector3(2.8, 0.5, 6.0)
-
-[sub_resource type="BoxMesh" id="2"]
-size = Vector3(2.2, 0.35, 2.4)
-
-[sub_resource type="BoxShape3D" id="3"]
-size = Vector3(2.8, 0.9, 6.0)
+[ext_resource type="Script" uid="uid://bobsuf3u5yt2w" path="res://scripts/boats/boat_controller.gd" id="1"]
 
 [sub_resource type="StandardMaterial3D" id="4"]
 albedo_color = Color(0.885, 0.17, 0.18, 1)
 roughness = 0.25
 
+[sub_resource type="BoxMesh" id="1"]
+size = Vector3(2.8, 0.5, 6)
+
 [sub_resource type="StandardMaterial3D" id="5"]
 albedo_color = Color(0.13, 0.13, 0.15, 1)
 roughness = 0.45
 
-[node name="Boat" type="RigidBody3D"]
+[sub_resource type="BoxMesh" id="2"]
+size = Vector3(2.2, 0.35, 2.4)
+
+[sub_resource type="BoxShape3D" id="3"]
+size = Vector3(2.8, 0.9, 6)
+
+[sub_resource type="StandardMaterial3D" id="6"]
+albedo_color = Color(0.97, 0.82, 0.14, 1)
+roughness = 0.35
+
+[sub_resource type="BoxMesh" id="7"]
+size = Vector3(0.55, 0.3, 1)
+
+[sub_resource type="BoxMesh" id="8"]
+size = Vector3(0.25, 0.8, 0.25)
+
+[node name="Boat" type="RigidBody3D" unique_id=153129346]
 script = ExtResource("1")
 
-[node name="Hull" type="MeshInstance3D" parent="."]
-mesh = SubResource("1")
+[node name="Hull" type="MeshInstance3D" parent="." unique_id=1667469706]
 material_override = SubResource("4")
+mesh = SubResource("1")
 
-[node name="Deck" type="MeshInstance3D" parent="."]
+[node name="Deck" type="MeshInstance3D" parent="." unique_id=32593826]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, -0.4)
-mesh = SubResource("2")
 material_override = SubResource("5")
+mesh = SubResource("2")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="Cabin" type="MeshInstance3D" parent="." unique_id=19323812]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0.7)
+material_override = SubResource("5")
+mesh = SubResource("7")
+
+[node name="BowMarker" type="MeshInstance3D" parent="." unique_id=707221921]
+transform = Transform3D(1, 0, 0, 0, 0.965926, 0.258819, 0, -0.258819, 0.965926, 0, 0.55, -2.55)
+material_override = SubResource("6")
+mesh = SubResource("7")
+
+[node name="MastMarker" type="MeshInstance3D" parent="." unique_id=213784522]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 1.2)
+material_override = SubResource("6")
+mesh = SubResource("8")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=159555780]
 shape = SubResource("3")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1307493692]
 transform = Transform3D(1, 0, 0, 0, 0.913545, 0.406737, 0, -0.406737, 0.913545, 0, 4.5, 13)
