@@ -1,83 +1,51 @@
 extends RigidBody3D
-class_name BuoyantObject
 
-@export var water_manager: Node3D
-@export var buoyancy_strength: float = 8.0
-@export var water_drag: float = 3.0
-@export var bounce_damping: float = 0.5
+@export var custom_volume: float = 0.0  # If 0, auto-calculate from bounds
+@export var buoyancy_multiplier: float = 1.0
+@export var water_drag_multiplier: float = 1.0
+@export var angular_drag_multiplier: float = 1.0
 
-var buoyancy_points: Array = []
+var water_manager: Node3D
+var object_volume: float = 0.0
 
 func _ready():
-	# Find water manager if not set
-	if not water_manager:
-		water_manager = get_node("/root/WaterWorld/WaterManager")
-
-	# Make sure we found it
-	if water_manager:
-		print("Water manager found!")
+	# Calculate or use custom volume
+	if custom_volume > 0:
+		object_volume = custom_volume
 	else:
-		print("WARNING: Water manager not found!")
+		object_volume = _calculate_volume()
+	
+	set_meta("volume", object_volume)
+	
+	water_manager = get_tree().get_first_node_in_group("water_manager")
+	if water_manager and water_manager.has_method("register_buoyant_object"):
+		water_manager.register_buoyant_object(self)
 
-	# Create buoyancy points
-	_create_buoyancy_points()
+func _exit_tree():
+	if water_manager and water_manager.has_method("unregister_buoyant_object"):
+		water_manager.unregister_buoyant_object(self)
 
-	# Physics settings
-	gravity_scale = 1.0
-	linear_damp = 0.3
-
-func _create_buoyancy_points():
-	# Simple buoyancy points (works for any object)
-	buoyancy_points = [
-		Vector3(-0.5, 0, -0.5),
-		Vector3(0.5, 0, -0.5),
-		Vector3(-0.5, 0, 0.5),
-		Vector3(0.5, 0, 0.5),
-		Vector3(0, 0, 0)
-	]
-
-func _integrate_forces(state: PhysicsDirectBodyState3D):
-	# Check if water manager exists
-	if not water_manager:
-		return
-
-	# Check if water_manager has the function
-	if not water_manager.has_method("get_water_height"):
-		return
-
-	var total_buoyancy = 0.0
-	var buoyancy_center = Vector3.ZERO
-
-	for point in buoyancy_points:
-		# Get world position of buoyancy point
-		var world_point = global_transform * point
-
-		# Get water height at that position
-		var water_height = water_manager.get_water_height(world_point.x, world_point.z)
-		var depth = water_height - world_point.y
-
-		if depth > 0:
-			# Limit depth to prevent huge forces
-			var limited_depth = min(depth, 1.0)
-
-			# Calculate force
-			var force_magnitude = buoyancy_strength * limited_depth
-			var force = Vector3.UP * force_magnitude
-
-			# Apply force
-			state.apply_force(force, world_point - state.transform.origin)
-			total_buoyancy += force_magnitude
-			buoyancy_center += world_point * force_magnitude
-
-			# Apply drag
-			var velocity_at_point = state.linear_velocity
-			var drag_force = -velocity_at_point * water_drag * limited_depth
-			state.apply_force(drag_force, world_point - state.transform.origin)
-
-	# Apply damping to stop bouncing
-	if total_buoyancy > 0:
-		buoyancy_center = buoyancy_center / total_buoyancy
-
-		# Damp vertical velocity
-		var damping_force = -state.linear_velocity.y * bounce_damping * 10.0
-		state.apply_central_force(Vector3.UP * damping_force)
+func _calculate_volume() -> float:
+	# Try collision shape first
+	for child in get_children():
+		if child is CollisionShape3D and child.shape:
+			if child.shape is BoxShape3D:
+				var size = child.shape.size * scale
+				return size.x * size.y * size.z
+			elif child.shape is SphereShape3D:
+				var r = child.shape.radius * max(scale.x, max(scale.y, scale.z))
+				return 4.0/3.0 * PI * r * r * r
+			elif child.shape is CapsuleShape3D:
+				var r = child.shape.radius * max(scale.x, scale.z)
+				var h = child.shape.height * scale.y
+				return PI * r * r * (4.0/3.0 * r + h)
+	
+	# Fallback to mesh
+	var mesh_instance = find_child("MeshInstance3D", true, false)
+	if mesh_instance and mesh_instance.mesh:
+		var aabb = mesh_instance.mesh.get_aabb()
+		var size = aabb.size * scale
+		return size.x * size.y * size.z * 0.5  # Approximate
+	
+	# Default volume based on mass (assuming density similar to water)
+	return mass / 1000.0

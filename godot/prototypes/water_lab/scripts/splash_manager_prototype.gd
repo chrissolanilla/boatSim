@@ -1,49 +1,40 @@
 extends Node3D
+class_name SplashManager
 
-@export var splash_scene: PackedScene
-@export var water_manager: Node3D
+@export var water_manager: WaterManager
+@export var splash_particle_scene: PackedScene
+@export var max_splashes := 50
 
-func _ready():
-	# Don't try to assign a GPUParticles3D to a PackedScene variable
-	if not splash_scene:
-		print("No splash scene assigned - will use fallback particles")
+var active_splashes: Array[GPUParticles3D] = []
 
-func trigger_splash(position: Vector3, strength: float = 1.0):
-	# Create splash directly without needing a PackedScene
-	_create_particle_splash(position, strength)
+func create_splash(position: Vector3, velocity: Vector3, size: float):
+	if active_splashes.size() >= max_splashes:
+		var old_splash = active_splashes.pop_front()
+		old_splash.queue_free()
+	
+	var splash = splash_particle_scene.instantiate()
+	splash.global_position = position
+	splash.emitting = true
+	
+	# Scale particles based on impact
+	var particles = splash as GPUParticles3D
+	if particles:
+		particles.amount = int(size * 50)
+		particles.lifetime = size * 0.5
+	
+	add_child(splash)
+	active_splashes.append(splash)
+	
+	# Auto cleanup
+	splash.finished.connect(func(): 
+		active_splashes.erase(splash)
+		splash.queue_free()
+	)
 
-func _create_particle_splash(position: Vector3, strength: float):
-	# Create particles directly
-	var particles = GPUParticles3D.new()
-	particles.one_shot = true
-	particles.lifetime = 0.8
-	particles.amount = int(20 * clamp(strength, 0.5, 3.0))
-	particles.position = position
-	
-	# Create particle material
-	var process_material = ParticleProcessMaterial.new()
-	process_material.direction = Vector3(0, 1, 0)
-	process_material.spread = 70.0
-	process_material.gravity = Vector3(0, -12, 0)
-	process_material.initial_velocity_min = 2.0
-	process_material.initial_velocity_max = 5.0
-	particles.process_material = process_material
-	
-	# Create visual for particles
-	var quad = QuadMesh.new()
-	quad.size = Vector2(0.08, 0.08)
-	particles.draw_pass_1 = quad
-	
-	var material = StandardMaterial3D.new()
-	material.albedo_color = Color(0.6, 0.7, 0.95, 0.8)
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	particles.material_override = material
-	
-	add_child(particles)
-	particles.emitting = true
-	
-	# Auto-remove after finishing
-	await get_tree().create_timer(particles.lifetime + 0.3).timeout
-	particles.queue_free()
-	
-	print("✓ Splash at: ", position)
+func _on_object_entered_water(object: BuoyantObject):
+	var impact_velocity = object.linear_velocity.length()
+	if impact_velocity > 2.0:
+		var splash_pos = object.global_position
+		var splash_size = min(impact_velocity * 0.1, 3.0)
+		create_splash(splash_pos, object.linear_velocity, splash_size)
+		water_manager.create_splash(splash_pos, impact_velocity * 0.05)

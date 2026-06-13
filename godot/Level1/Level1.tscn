@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://cwjx2jv8dn8q7" path="res://Boat/Boat.tscn" id="2_wv7g7"]
 [ext_resource type="Script" uid="uid://p65jiu08lhic" path="res://Level1/physics.gd" id="3_btw7m"]
 [ext_resource type="Script" uid="uid://cxtsp3b3p1436" path="res://Level1/ui_buoys.gd" id="4_22xjp"]
+[ext_resource type="Script" uid="uid://b5bte6t858gf5" path="res://prototypes/water_lab/scripts/wind_system_prototype.gd.gd" id="5_177rw"]
 [ext_resource type="Script" uid="uid://c08v3w0x1ea5f" path="res://Level1/ui_cordinates.gd" id="5_iits7"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yr1vs"]
@@ -73,9 +74,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 1.5, 0)
 water_path = NodePath("../Water")
 
 [node name="Buoys" type="Node3D" parent="." unique_id=792981978]
+visible = false
 
 [node name="Water" type="Node3D" parent="." unique_id=1651675491]
 script = ExtResource("3_btw7m")
+water_size = Vector2(50, 50)
+wave_height = 9.605
+wave_length = 200.0
+wave_direction = 138.144
+wave_speed = 40.0
+wave_disparity = 1.5
+wave_swell = 3.0
+
+[node name="Wind" type="Node3D" parent="." unique_id=2030263019]
+script = ExtResource("5_177rw")
+wind_speed = 100.0
 
 [node name="ObjectsTest" type="Node3D" parent="." unique_id=1559894640]
 
@@ -256,6 +269,7 @@ offset_bottom = 392.0
 
 [node name="528Feet" type="Node3D" parent="." unique_id=1001759975]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6939359, 0, -3.6928735)
+visible = false
 
 [node name="Cube" type="MeshInstance3D" parent="528Feet" unique_id=183062220]
 transform = Transform3D(80.4672, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)

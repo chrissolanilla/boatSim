@@ -1,80 +1,54 @@
 extends Camera3D
 
-@export var move_speed: float = 25.0
-@export var mouse_sensitivity: float = 0.002
+@export var target: Node3D
+@export var follow_speed := 5.0
+@export var rotation_speed := 3.0
+@export var distance := 10.0
+@export var height := 5.0
+@export var look_ahead := 3.0
+@export var water_clip_margin := 0.5
 
-var mouse_captured: bool = false
-var yaw: float = 0.0
-var pitch: float = 0.0
+var current_rotation := Vector3.ZERO
+var mouse_sensitivity := 0.002
+var water_manager: Node3D
 
 func _ready():
-	capture_mouse()
-	# Store initial rotation
-	yaw = rotation.y
-	pitch = rotation.x
+	if target:
+		current_rotation = rotation
+	water_manager = get_tree().get_first_node_in_group("water_manager")
 
-func _input(event):
-	if event.is_action_pressed("ui_cancel"):
-		toggle_mouse_capture()
-	
-	if event is InputEventMouseMotion and mouse_captured:
-		# Update yaw and pitch (horizontal and vertical look)
-		yaw -= event.relative.x * mouse_sensitivity
-		pitch -= event.relative.y * mouse_sensitivity
-		
-		# Limit pitch to prevent flipping over
-		pitch = clamp(pitch, -1.4, 1.4)
-		
-		# Apply rotations (yaw around Y axis, pitch around X axis)
-		rotation.y = yaw
-		rotation.x = pitch
-
-func _process(delta):
-	if not mouse_captured:
+func _physics_process(delta):
+	if not target:
 		return
 	
-	var speed = move_speed
-	if Input.is_key_pressed(KEY_SHIFT):
-		speed = move_speed * 2.0
+	# Calculate desired position
+	var target_velocity = Vector3.ZERO
+	if target is RigidBody3D:
+		target_velocity = target.linear_velocity
 	
-	var move_dir = Vector3.ZERO
+	var look_target = target.global_position + target_velocity.normalized() * look_ahead
+	look_target.y = target.global_position.y
 	
-	# Get input
-	if Input.is_key_pressed(KEY_W):
-		move_dir.z += 1
-	if Input.is_key_pressed(KEY_S):
-		move_dir.z -= 1
-	if Input.is_key_pressed(KEY_A):
-		move_dir.x -= 1
-	if Input.is_key_pressed(KEY_D):
-		move_dir.x += 1
-	if Input.is_key_pressed(KEY_Q):
-		move_dir.y += 1
-	if Input.is_key_pressed(KEY_E):
-		move_dir.y -= 1
+	# Rotate around target
+	var cam_offset = Vector3(
+		distance * sin(current_rotation.y) * cos(current_rotation.x),
+		height + distance * sin(current_rotation.x),
+		distance * cos(current_rotation.y) * cos(current_rotation.x)
+	)
 	
-	# Normalize diagonal movement
-	if move_dir.length() > 0:
-		move_dir = move_dir.normalized()
+	var desired_position = look_target + cam_offset
 	
-	# Calculate movement based on yaw only (camera direction on XZ plane)
-	var forward = Vector3(-sin(yaw), 0, -cos(yaw))
-	var right = Vector3(cos(yaw), 0, -sin(yaw))
-	var up = Vector3(0, 1, 0)
+	# Ensure camera stays above water
+	if water_manager and water_manager.has_method("get_height_at_position"):
+		var water_height = water_manager.get_height_at_position(desired_position)
+		desired_position.y = max(desired_position.y, water_height + water_clip_margin)
 	
-	var movement = forward * move_dir.z + right * move_dir.x + up * move_dir.y
-	position += movement * speed * delta
+	# Smooth interpolation
+	global_position = global_position.lerp(desired_position, follow_speed * delta)
+	look_at(look_target)
 
-func capture_mouse():
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	mouse_captured = true
-
-func release_mouse():
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	mouse_captured = false
-
-func toggle_mouse_capture():
-	if mouse_captured:
-		release_mouse()
-	else:
-		capture_mouse()
+func _input(event):
+	if event is InputEventMouseMotion and Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
+		current_rotation.y -= event.relative.x * mouse_sensitivity
+		current_rotation.x -= event.relative.y * mouse_sensitivity
+		current_rotation.x = clamp(current_rotation.x, -PI/4, PI/4)

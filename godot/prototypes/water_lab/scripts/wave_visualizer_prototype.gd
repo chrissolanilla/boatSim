@@ -1,49 +1,70 @@
 extends Node3D
 
 @export var water_manager: Node3D
-@export var particle_count: int = 50
-@export var area_size: float = 50.0
+@export var show_grid := true
+@export var show_velocity := true
+@export var show_height_colors := true
+@export var grid_spacing := 5
+@export var velocity_spacing := 10
+
+var debug_mesh: ImmediateMesh
+var mesh_instance: MeshInstance3D
 
 func _ready():
-	_create_visualizers()
-
-func _create_visualizers():
-	# Create floating particles that move with waves
-	for i in range(particle_count):
-		var particle = MeshInstance3D.new()
-		var sphere = SphereMesh.new()
-		sphere.radius = 0.1
-		sphere.height = 0.1
-		particle.mesh = sphere
-		
-		# Random position
-		var x = randf_range(-area_size, area_size)
-		var z = randf_range(-area_size, area_size)
-		particle.position = Vector3(x, 0, z)
-		
-		# Random color (bright colors stand out)
-		var material = StandardMaterial3D.new()
-		material.albedo_color = Color(randf(), randf(), randf(), 0.8)
-		material.emission_enabled = true
-		material.emission = material.albedo_color * 0.5
-		particle.material_override = material
-		
-		add_child(particle)
-		
-		# Store data
-		particle.set_meta("speed", randf_range(0.5, 2.0))
-		particle.set_meta("offset", randf() * PI * 2)
+	debug_mesh = ImmediateMesh.new()
+	mesh_instance = MeshInstance3D.new()
+	mesh_instance.mesh = debug_mesh
+	add_child(mesh_instance)
 
 func _process(delta):
 	if not water_manager:
 		return
 	
-	for particle in get_children():
-		var x = particle.position.x
-		var z = particle.position.z
-		var water_height = water_manager.get_water_height(x, z)
-		particle.position.y = water_height + 0.1
-		
-		# Bobbing animation
-		var bob = sin(Time.get_ticks_msec() * 0.003 * particle.get_meta("speed") + particle.get_meta("offset")) * 0.05
-		particle.position.y += bob
+	debug_mesh.clear_surfaces()
+	
+	if show_grid:
+		_draw_grid()
+	if show_velocity:
+		_draw_velocity_vectors()
+
+func _draw_grid():
+	if not water_manager.has_method("get_height_at_position"):
+		return
+	
+	var material = StandardMaterial3D.new()
+	material.albedo_color = Color.GREEN
+	material.flags_unshaded = true
+	mesh_instance.material_override = material
+	
+	debug_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	
+	for x in range(0, int(water_manager.grid_size.x), grid_spacing):
+		for z in range(0, int(water_manager.grid_size.y), grid_spacing):
+			var pos = Vector3(
+				x * water_manager.cell_size,
+				water_manager.height_map[x][z],
+				z * water_manager.cell_size
+			)
+			debug_mesh.surface_add_vertex(pos)
+			debug_mesh.surface_add_vertex(pos + Vector3.UP * 0.5)
+	
+	debug_mesh.surface_end()
+
+func _draw_velocity_vectors():
+	if not water_manager.has_method("get_water_velocity_at"):
+		return
+	
+	debug_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
+	
+	for x in range(0, int(water_manager.grid_size.x), velocity_spacing):
+		for z in range(0, int(water_manager.grid_size.y), velocity_spacing):
+			var pos = Vector3(
+				x * water_manager.cell_size,
+				water_manager.height_map[x][z],
+				z * water_manager.cell_size
+			)
+			var vel = water_manager.get_water_velocity_at(pos)
+			debug_mesh.surface_add_vertex(pos)
+			debug_mesh.surface_add_vertex(pos + vel * 0.1)
+	
+	debug_mesh.surface_end()
