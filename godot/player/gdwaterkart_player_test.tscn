@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://clbvio1mpve5u"]
+
+[ext_resource type="Script" uid="uid://d1lvge7812a3r" path="res://player/gdwaterkart_player_test.gd" id="1_wrapped"]
+[ext_resource type="Script" uid="uid://dmjqn5j58cne8" path="res://player/camera_controller.gd" id="2_camera"]
+[ext_resource type="PackedScene" uid="uid://btvbhyy5ht8ti" path="res://player/karts/kart.tscn" id="3_kart"]
+[ext_resource type="Environment" uid="uid://b2fa18uw5ynou" path="res://environment/levels/island/under_water_environment.tres" id="4_underwater"]
+
+[node name="GDWaterKartPlayerTest" type="Node3D" unique_id=1397201267 groups=["player"]]
+script = ExtResource("1_wrapped")
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=793102931 node_paths=PackedStringArray("kart", "camera")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.563, 0)
+script = ExtResource("2_camera")
+kart = NodePath("../Kart")
+camera = NodePath("Pivot2/Camera3D")
+look_sensitivity = 0.025
+under_water_environment = ExtResource("4_underwater")
+camera_reset_delay = 1.25
+
+[node name="Pivot2" type="SpringArm3D" parent="CameraPivot" unique_id=130294753]
+transform = Transform3D(1, 0, 0, 0, 0.866026, 0.5, 0, -0.5, 0.866026, 0, 0, 0)
+collision_mask = 30
+spring_length = 4.0
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/Pivot2" unique_id=28186039]
+current = true
+fov = 85.0
+
+[node name="Kart" parent="." unique_id=1228751165 instance=ExtResource("3_kart")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+collision_mask = 63
+floor_max_angle = 1.0472
+roll_resistance = 0.6
+max_steering_angle_fast = 6.0
+drift_steering_multiplier = 1.5

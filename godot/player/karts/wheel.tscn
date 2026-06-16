@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://cmohn132ayjga"]
+
+[ext_resource type="Script" uid="uid://duvvapfmknwhk" path="res://player/karts/wheel.gd" id="1_k86kg"]
+[ext_resource type="Material" uid="uid://cwqmra1oal3pf" path="res://player/karts/basic/kart_material.tres" id="2_d0rij"]
+[ext_resource type="ArrayMesh" uid="uid://ybppruw6fc2m" path="res://player/karts/basic/kart_wheel.obj" id="3_qswl7"]
+
+[node name="KartWheel" type="Node3D"]
+script = ExtResource("1_k86kg")
+spring_rest_length = 0.4
+
+[node name="WheelVisual" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+
+[node name="WheelMesh" type="MeshInstance3D" parent="WheelVisual"]
+transform = Transform3D(-1, -1.50996e-07, 0, 1.50996e-07, -1, 0, 0, 0, 1, 0, 0.25, 0)
+material_override = ExtResource("2_d0rij")
+mesh = ExtResource("3_qswl7")
+skeleton = NodePath("../..")
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0900521, 0.0945797, 0)
+collision_mask = 120
