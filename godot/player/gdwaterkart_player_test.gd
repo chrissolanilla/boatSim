@@ -11,7 +11,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	camera_pivot.global_position = kart.visual_parent.global_position + Vector3(0, 1, 0)
+	camera_pivot.global_position = kart.visual_parent.global_position + Vector3(0, 5, 8)
 	RenderingServer.global_shader_parameter_set("player_position", kart.global_position)
 
 	if ocean_node:

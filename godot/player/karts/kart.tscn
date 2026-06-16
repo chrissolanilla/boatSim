@@ -1,4 +1,4 @@
-[gd_scene load_steps=41 format=3 uid="uid://btvbhyy5ht8ti"]
+[gd_scene format=3 uid="uid://btvbhyy5ht8ti"]
 
 [ext_resource type="Script" uid="uid://whwiqs4rjsoj" path="res://player/karts/kart.gd" id="1_cyw3l"]
 [ext_resource type="Material" uid="uid://cwqmra1oal3pf" path="res://player/karts/basic/kart_material.tres" id="2_cdvtu"]
@@ -6,7 +6,7 @@
 [ext_resource type="ArrayMesh" uid="uid://dgrxcp84esui1" path="res://player/karts/basic/kart_body.obj" id="3_k5big"]
 [ext_resource type="Script" uid="uid://cq4einn6nftcp" path="res://water/water_buoyancy_sensor.gd" id="3_krwk8"]
 [ext_resource type="ArrayMesh" uid="uid://31lad5bk4p7r" path="res://player/karts/basic/kart_steering_wheel.obj" id="4_k5big"]
-[ext_resource type="Texture2D" path="res://icon.svg" id="5_4xgl7"]
+[ext_resource type="Texture2D" uid="uid://bfo3v14k52bpj" path="res://icon.svg" id="5_4xgl7"]
 [ext_resource type="Script" uid="uid://immg84rmp61v" path="res://player/karts/steering_wheel.gd" id="5_ebjfs"]
 [ext_resource type="PackedScene" uid="uid://cy36aygvs66pn" path="res://addons/gdquest_gobot/gobot_skin.tscn" id="6_ffnty"]
 [ext_resource type="Material" uid="uid://bgq6881a55o8t" path="res://player/karts/effects/drifting/drifting_sparks_material.tres" id="9_ekr4a"]
@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://c4nert4qlemk2" path="res://shared/textures/cloud.png" id="11_i3c53"]
 [ext_resource type="Material" uid="uid://bwxlld7p83xw2" path="res://player/karts/effects/drifting/water_spray.tres" id="12_usafr"]
 [ext_resource type="Texture2D" uid="uid://hvfpsb717xsu" path="res://shared/textures/spark.png" id="14_usafr"]
+[ext_resource type="PackedScene" uid="uid://dkrikies6y0yo" path="res://blender/scaledREDBOATMTI.glb" id="16_qosft"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f5n8r"]
 transparency = 2
@@ -193,10 +194,10 @@ scale_curve = SubResource("CurveTexture_usafr")
 size = Vector2(0.1, 0.1)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_4e78f"]
-radius = 0.6
-height = 2.3
+radius = 5.455
+height = 30.327
 
-[node name="Kart" type="CharacterBody3D"]
+[node name="Kart" type="CharacterBody3D" unique_id=782435700]
 script = ExtResource("1_cyw3l")
 boost_speed = 25.0
 top_speed = 15.0
@@ -205,17 +206,17 @@ break_resistance = 2.0
 wheel_base = 2.0
 drift_steering_multiplier = 2.0
 
-[node name="ParticlesManager" type="Node3D" parent="."]
+[node name="ParticlesManager" type="Node3D" parent="." unique_id=1224699058]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.383602)
 script = ExtResource("9_rli1m")
 drift_stage_1_color = Color(0.164706, 0.407843, 0.968627, 1)
 drift_stage_2_color = Color(0.97, 0.527195, 0.1649, 1)
 sparks_material = ExtResource("9_ekr4a")
 
-[node name="Trick" type="Node3D" parent="ParticlesManager"]
+[node name="Trick" type="Node3D" parent="ParticlesManager" unique_id=1364688093]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.383602)
 
-[node name="Sparks" type="GPUParticles3D" parent="ParticlesManager/Trick"]
+[node name="Sparks" type="GPUParticles3D" parent="ParticlesManager/Trick" unique_id=214229395]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00947666, 0.360248, 0.0177888)
 material_override = SubResource("StandardMaterial3D_f5n8r")
 emitting = false
@@ -228,21 +229,22 @@ local_coords = true
 process_material = SubResource("ParticleProcessMaterial_qosft")
 draw_pass_1 = SubResource("QuadMesh_usafr")
 
-[node name="Visual" type="Node3D" parent="."]
+[node name="Visual" type="Node3D" parent="." unique_id=396961905]
 
-[node name="Kart" type="Node3D" parent="Visual"]
+[node name="Kart" type="Node3D" parent="Visual" unique_id=1057282376]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
 
-[node name="Body" type="MeshInstance3D" parent="Visual/Kart"]
+[node name="Body" type="MeshInstance3D" parent="Visual/Kart" unique_id=90416666]
 transform = Transform3D(1, 0, 1.74846e-07, 0, 1, 0, -1.74846e-07, 0, 1, 3.42821e-08, 0.0605825, 0.0597809)
+visible = false
 material_override = ExtResource("2_cdvtu")
 mesh = ExtResource("3_k5big")
 skeleton = NodePath("../../..")
 
-[node name="Node3D" type="Node3D" parent="Visual/Kart/Body"]
+[node name="Node3D" type="Node3D" parent="Visual/Kart/Body" unique_id=1486698488]
 transform = Transform3D(1, 7.46094e-08, 4.18577e-08, -7.46094e-08, 0.521203, 0.853433, 4.18577e-08, -0.853433, 0.521203, -5.37585e-08, 0.239236, 0.580899)
 
-[node name="SteeringWheel" type="MeshInstance3D" parent="Visual/Kart/Body/Node3D" node_paths=PackedStringArray("character")]
+[node name="SteeringWheel" type="MeshInstance3D" parent="Visual/Kart/Body/Node3D" unique_id=630432281 node_paths=PackedStringArray("character")]
 transform = Transform3D(1, 0, -3.55271e-15, 0, 1, 0, 3.55271e-15, 0, 1, 7.09798e-18, -1.86265e-09, -0.0644979)
 material_override = ExtResource("2_cdvtu")
 mesh = ExtResource("4_k5big")
@@ -250,56 +252,59 @@ skeleton = NodePath("../..")
 script = ExtResource("5_ebjfs")
 character = NodePath("../../../Character/GobotSkin")
 
-[node name="LeftHandGrip" type="Marker3D" parent="Visual/Kart/Body/Node3D/SteeringWheel"]
+[node name="LeftHandGrip" type="Marker3D" parent="Visual/Kart/Body/Node3D/SteeringWheel" unique_id=854636284]
 transform = Transform3D(1, 0, 3.55271e-15, 0, 1, 0, -1.77636e-15, 0, 1, 0.14, 0.518, 0)
 
-[node name="RightHandGrip" type="Marker3D" parent="Visual/Kart/Body/Node3D/SteeringWheel"]
+[node name="RightHandGrip" type="Marker3D" parent="Visual/Kart/Body/Node3D/SteeringWheel" unique_id=1001231801]
 transform = Transform3D(1, 0, 3.55271e-15, 0, 1, 0, -1.77636e-15, 0, 1, -0.14, 0.518, 0)
 
-[node name="Decal" type="Decal" parent="Visual/Kart/Body"]
+[node name="Decal" type="Decal" parent="Visual/Kart/Body" unique_id=1780728669]
 transform = Transform3D(1, -3.04917e-08, 5.48989e-09, 3.04917e-08, 0.937203, -0.348785, 5.4899e-09, 0.348785, 0.937203, -5.53334e-08, 0.460348, 0.63294)
 size = Vector3(0.4, 0.01, 0.4)
 texture_albedo = ExtResource("5_4xgl7")
 
-[node name="Character" type="Node3D" parent="Visual/Kart"]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 3.50697e-08, -0.140377, 0.0687909)
+[node name="Character" type="Node3D" parent="Visual/Kart" unique_id=451157570]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 3.50697e-08, -0.96863866, 0.0687909)
 
-[node name="GobotSkin" parent="Visual/Kart/Character" instance=ExtResource("6_ffnty")]
+[node name="GobotSkin" parent="Visual/Kart/Character" unique_id=120955945 instance=ExtResource("6_ffnty")]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0.19278, 0.253395)
 
-[node name="VehicleWheel3D" parent="Visual/Kart" instance=ExtResource("2_k70jy")]
+[node name="VehicleWheel3D" parent="Visual/Kart" unique_id=736650764 instance=ExtResource("2_k70jy")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.6, 0.227493, 0.659778)
+visible = false
 steering_enabled = true
 traction_enabled = true
 left_side = true
 spring_rest_length = 0.5
 
-[node name="VehicleWheel3D2" parent="Visual/Kart" instance=ExtResource("2_k70jy")]
+[node name="VehicleWheel3D2" parent="Visual/Kart" unique_id=815562913 instance=ExtResource("2_k70jy")]
 transform = Transform3D(1, 0, 1.47027e-07, 0, 1, 0, -1.47027e-07, 0, 1, -0.6, 0.227493, 0.659778)
+visible = false
 steering_enabled = true
 traction_enabled = true
 spring_rest_length = 0.5
 
-[node name="VehicleWheel3D3" parent="Visual/Kart" instance=ExtResource("2_k70jy")]
+[node name="VehicleWheel3D3" parent="Visual/Kart" unique_id=641554242 instance=ExtResource("2_k70jy")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.6, 0.227493, -0.540219)
+visible = false
 left_side = true
 spring_rest_length = 0.5
 
-[node name="VehicleWheel3D4" parent="Visual/Kart" instance=ExtResource("2_k70jy")]
+[node name="VehicleWheel3D4" parent="Visual/Kart" unique_id=2128867430 instance=ExtResource("2_k70jy")]
 transform = Transform3D(1, 0, 1.47027e-07, 0, 1, 0, -1.47027e-07, 0, 1, -0.6, 0.227493, -0.540219)
+visible = false
 spring_rest_length = 0.5
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Visual/Kart"]
-libraries = {
-&"": SubResource("AnimationLibrary_f5n8r")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Visual/Kart" unique_id=1265806319]
+libraries/ = SubResource("AnimationLibrary_f5n8r")
 
-[node name="Particles" type="Node3D" parent="Visual/Kart"]
+[node name="Particles" type="Node3D" parent="Visual/Kart" unique_id=102187093]
+transform = Transform3D(11.495, 0, 0, 0, 11.495, 0, 0, 0, 11.495, 0, 0, 0)
 
-[node name="WaterParticles" type="Node3D" parent="Visual/Kart/Particles"]
+[node name="WaterParticles" type="Node3D" parent="Visual/Kart/Particles" unique_id=645111635]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.383602)
 
-[node name="Particles" type="GPUParticles3D" parent="Visual/Kart/Particles/WaterParticles"]
+[node name="Particles" type="GPUParticles3D" parent="Visual/Kart/Particles/WaterParticles" unique_id=1792588064]
 transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, -0.575, -0.0236623, -0.311601)
 material_override = ExtResource("12_usafr")
 amount = 10
@@ -307,7 +312,7 @@ lifetime = 0.6
 process_material = SubResource("ParticleProcessMaterial_k8uti")
 draw_pass_1 = SubResource("QuadMesh_i3c53")
 
-[node name="Particles3" type="GPUParticles3D" parent="Visual/Kart/Particles/WaterParticles"]
+[node name="Particles3" type="GPUParticles3D" parent="Visual/Kart/Particles/WaterParticles" unique_id=1351350782]
 transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, -0.575, -0.0236623, 0.927407)
 material_override = ExtResource("12_usafr")
 amount = 10
@@ -315,7 +320,7 @@ lifetime = 0.6
 process_material = SubResource("ParticleProcessMaterial_k8uti")
 draw_pass_1 = SubResource("QuadMesh_i3c53")
 
-[node name="Particles2" type="GPUParticles3D" parent="Visual/Kart/Particles/WaterParticles"]
+[node name="Particles2" type="GPUParticles3D" parent="Visual/Kart/Particles/WaterParticles" unique_id=1634591111]
 transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, 0.575, -0.0236623, -0.311601)
 material_override = ExtResource("12_usafr")
 amount = 10
@@ -323,7 +328,7 @@ lifetime = 0.6
 process_material = SubResource("ParticleProcessMaterial_k8uti")
 draw_pass_1 = SubResource("QuadMesh_i3c53")
 
-[node name="Particles4" type="GPUParticles3D" parent="Visual/Kart/Particles/WaterParticles"]
+[node name="Particles4" type="GPUParticles3D" parent="Visual/Kart/Particles/WaterParticles" unique_id=1732970512]
 transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, 0.575, -0.0236623, 0.927407)
 material_override = ExtResource("12_usafr")
 amount = 10
@@ -331,10 +336,10 @@ lifetime = 0.6
 process_material = SubResource("ParticleProcessMaterial_k8uti")
 draw_pass_1 = SubResource("QuadMesh_i3c53")
 
-[node name="SlidingParticles" type="Node3D" parent="Visual/Kart/Particles"]
+[node name="SlidingParticles" type="Node3D" parent="Visual/Kart/Particles" unique_id=1957525711]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.383602)
 
-[node name="Particles" type="GPUParticles3D" parent="Visual/Kart/Particles/SlidingParticles"]
+[node name="Particles" type="GPUParticles3D" parent="Visual/Kart/Particles/SlidingParticles" unique_id=1629885282]
 transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, -0.575, -0.0236623, -0.311601)
 material_override = ExtResource("11_4e78f")
 amount = 4
@@ -343,7 +348,7 @@ local_coords = true
 process_material = SubResource("ParticleProcessMaterial_usafr")
 draw_pass_1 = SubResource("QuadMesh_i3c53")
 
-[node name="Particles2" type="GPUParticles3D" parent="Visual/Kart/Particles/SlidingParticles"]
+[node name="Particles2" type="GPUParticles3D" parent="Visual/Kart/Particles/SlidingParticles" unique_id=2057297253]
 transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, 0.575, -0.024, -0.312)
 material_override = ExtResource("11_4e78f")
 amount = 4
@@ -352,10 +357,10 @@ local_coords = true
 process_material = SubResource("ParticleProcessMaterial_usafr")
 draw_pass_1 = SubResource("QuadMesh_i3c53")
 
-[node name="DriftSparks" type="Node3D" parent="Visual/Kart/Particles"]
+[node name="DriftSparks" type="Node3D" parent="Visual/Kart/Particles" unique_id=1302785309]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.383602)
 
-[node name="Particles" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks"]
+[node name="Particles" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks" unique_id=336450253]
 transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, -0.575, -0.0236623, -0.410105)
 material_override = ExtResource("9_ekr4a")
 amount = 4
@@ -364,14 +369,14 @@ local_coords = true
 process_material = SubResource("ParticleProcessMaterial_rli1m")
 draw_pass_1 = SubResource("QuadMesh_i3c53")
 
-[node name="Sparks" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks/Particles"]
+[node name="Sparks" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks/Particles" unique_id=355520573]
 material_override = ExtResource("9_ekr4a")
 amount = 5
 lifetime = 0.5
 process_material = SubResource("ParticleProcessMaterial_4e78f")
 draw_pass_1 = SubResource("QuadMesh_usafr")
 
-[node name="Particles2" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks"]
+[node name="Particles2" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks" unique_id=856557234]
 transform = Transform3D(1, 0, -2.13163e-14, 0, 1, 0, 2.13163e-14, 0, 1, 0.575, -0.0235636, -0.409877)
 material_override = ExtResource("9_ekr4a")
 amount = 4
@@ -380,17 +385,17 @@ local_coords = true
 process_material = SubResource("ParticleProcessMaterial_rli1m")
 draw_pass_1 = SubResource("QuadMesh_f5n8r")
 
-[node name="Sparks" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks/Particles2"]
+[node name="Sparks" type="GPUParticles3D" parent="Visual/Kart/Particles/DriftSparks/Particles2" unique_id=453735415]
 material_override = ExtResource("9_ekr4a")
 amount = 5
 lifetime = 0.5
 process_material = SubResource("ParticleProcessMaterial_4e78f")
 draw_pass_1 = SubResource("QuadMesh_usafr")
 
-[node name="Boost" type="Node3D" parent="Visual/Kart/Particles"]
+[node name="Boost" type="Node3D" parent="Visual/Kart/Particles" unique_id=1480043215]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.383602)
 
-[node name="GPUParticles3D" type="GPUParticles3D" parent="Visual/Kart/Particles/Boost"]
+[node name="GPUParticles3D" type="GPUParticles3D" parent="Visual/Kart/Particles/Boost" unique_id=483110983]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.399376, 0.770018, -0.709039)
 material_override = SubResource("ShaderMaterial_4e78f")
 lifetime = 0.2
@@ -398,7 +403,7 @@ local_coords = true
 process_material = SubResource("ParticleProcessMaterial_f5n8r")
 draw_pass_1 = SubResource("QuadMesh_qosft")
 
-[node name="GPUParticles3D2" type="GPUParticles3D" parent="Visual/Kart/Particles/Boost"]
+[node name="GPUParticles3D2" type="GPUParticles3D" parent="Visual/Kart/Particles/Boost" unique_id=513444460]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.399, 0.77, -0.709)
 material_override = SubResource("ShaderMaterial_4e78f")
 lifetime = 0.2
@@ -406,17 +411,19 @@ local_coords = true
 process_material = SubResource("ParticleProcessMaterial_f5n8r")
 draw_pass_1 = SubResource("QuadMesh_qosft")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0.25, -0.011)
+[node name="scaledREDBOATMTI" parent="Visual/Kart" unique_id=275915025 instance=ExtResource("16_qosft")]
+transform = Transform3D(-2.2511365e-08, 0, 0.515, 0, 0.515, 0, -0.515, 0, -2.2511365e-08, -1.0315509, 0.25000024, 2.0681188)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=140840630]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, -0.38680267, -0.7185421, 1.5221163)
 shape = SubResource("CapsuleShape3D_4e78f")
 
-[node name="WaterBuoyancySensor" type="Marker3D" parent="."]
+[node name="WaterBuoyancySensor" type="Marker3D" parent="." unique_id=208905886]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.4, 0)
 script = ExtResource("3_krwk8")
 height = 0.8
 
-[node name="DebugLabel" type="Label" parent="."]
-visible = false
+[node name="DebugLabel" type="Label" parent="." unique_id=2065694845]
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0

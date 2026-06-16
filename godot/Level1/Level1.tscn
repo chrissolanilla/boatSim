@@ -79,12 +79,12 @@ visible = false
 [node name="Water" type="Node3D" parent="." unique_id=1651675491]
 script = ExtResource("3_btw7m")
 water_size = Vector2(50, 50)
-wave_height = 9.605
-wave_length = 200.0
+wave_height = 5.526
+wave_length = 105.803
 wave_direction = 138.144
-wave_speed = 40.0
-wave_disparity = 1.5
-wave_swell = 3.0
+wave_speed = 19.66
+wave_disparity = 0.83
+wave_swell = 1.7750000000000001
 
 [node name="Wind" type="Node3D" parent="." unique_id=2030263019]
 script = ExtResource("5_177rw")
