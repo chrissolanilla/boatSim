@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://cwjx2jv8dn8q7" path="res://Boat/Boat.tscn" id="2_wv7g7"]
 [ext_resource type="Script" uid="uid://p65jiu08lhic" path="res://Level1/physics.gd" id="3_btw7m"]
 [ext_resource type="Script" uid="uid://cxtsp3b3p1436" path="res://Level1/ui_buoys.gd" id="4_22xjp"]
+[ext_resource type="Script" uid="uid://bicqsnq51ermc" path="res://prototypes/water_lab/scripts/boat_controller_prototype.gd" id="4_q8ihw"]
 [ext_resource type="Script" uid="uid://b5bte6t858gf5" path="res://prototypes/water_lab/scripts/wind_system_prototype.gd.gd" id="5_177rw"]
 [ext_resource type="Script" uid="uid://c08v3w0x1ea5f" path="res://Level1/ui_cordinates.gd" id="5_iits7"]
 
@@ -71,18 +72,26 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.0504665, 0, 3.1714969)
 
 [node name="Boat" parent="." unique_id=1677494551 instance=ExtResource("2_wv7g7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 1.5, 0)
-water_path = NodePath("../Water")
+script = ExtResource("4_q8ihw")
+boat_length = 4.0
+boat_width = 1.5
+boat_height = 1.0
+boat_mass = 500.0
+wind_exposed_area = 3.0
+wind_side_area = 6.0
+wind_force_multiplier = 1.5
+wind_torque_multiplier = 2.0
 
 [node name="Buoys" type="Node3D" parent="." unique_id=792981978]
 visible = false
 
 [node name="Water" type="Node3D" parent="." unique_id=1651675491]
 script = ExtResource("3_btw7m")
-water_size = Vector2(50, 50)
-wave_height = 9.605
+water_size = Vector2(100, 100)
+wave_height = 3.815
 wave_length = 200.0
-wave_direction = 138.144
-wave_speed = 40.0
+wave_direction = 360.0
+wave_speed = 9.284
 wave_disparity = 1.5
 wave_swell = 3.0
 
