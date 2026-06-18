@@ -4,14 +4,14 @@ importer="wavefront_obj"
 importer_version=1
 type="Mesh"
 uid="uid://dgrxcp84esui1"
-path="res://.godot/imported/kart_body.obj-0d09bf09b0effa1497abbcfba95d76af.mesh"
+path="res://.godot/imported/kart_body.obj-82fb9c589032017d65dd517b98b5ffcb.mesh"
 
 [deps]
 
-files=["res://.godot/imported/kart_body.obj-0d09bf09b0effa1497abbcfba95d76af.mesh"]
+files=["res://.godot/imported/kart_body.obj-82fb9c589032017d65dd517b98b5ffcb.mesh"]
 
-source_file="res://player/karts/basic/kart_body.obj"
-dest_files=["res://.godot/imported/kart_body.obj-0d09bf09b0effa1497abbcfba95d76af.mesh", "res://.godot/imported/kart_body.obj-0d09bf09b0effa1497abbcfba95d76af.mesh"]
+source_file="res://Player/karts/basic/kart_body.obj"
+dest_files=["res://.godot/imported/kart_body.obj-82fb9c589032017d65dd517b98b5ffcb.mesh", "res://.godot/imported/kart_body.obj-82fb9c589032017d65dd517b98b5ffcb.mesh"]
 
 [params]
 

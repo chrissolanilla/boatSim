@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://dubedh5odyf4g"
-path="res://.godot/imported/basic_kart.blend-c5b50859ebe32fdf2b8e06b0fa64128f.scn"
+path="res://.godot/imported/basic_kart.blend-87584ad0ebdca309ea6be0b7eb328083.scn"
 
 [deps]
 
-source_file="res://player/karts/basic/basic_kart.blend"
-dest_files=["res://.godot/imported/basic_kart.blend-c5b50859ebe32fdf2b8e06b0fa64128f.scn"]
+source_file="res://Player/karts/basic/basic_kart.blend"
+dest_files=["res://.godot/imported/basic_kart.blend-87584ad0ebdca309ea6be0b7eb328083.scn"]
 
 [params]
 

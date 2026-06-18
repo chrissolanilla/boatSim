@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://clbvio1mpve5u"]
 
-[ext_resource type="Script" uid="uid://d1lvge7812a3r" path="res://player/gdwaterkart_player_test.gd" id="1_wrapped"]
-[ext_resource type="Script" uid="uid://dmjqn5j58cne8" path="res://player/camera_controller.gd" id="2_camera"]
-[ext_resource type="PackedScene" uid="uid://btvbhyy5ht8ti" path="res://player/karts/kart.tscn" id="3_kart"]
+[ext_resource type="Script" uid="uid://d1lvge7812a3r" path="res://Player/gdwaterkart_player_test.gd" id="1_wrapped"]
+[ext_resource type="Script" uid="uid://dmjqn5j58cne8" path="res://Player/camera_controller.gd" id="2_camera"]
+[ext_resource type="PackedScene" uid="uid://btvbhyy5ht8ti" path="res://Player/karts/kart.tscn" id="3_kart"]
 [ext_resource type="Environment" uid="uid://b2fa18uw5ynou" path="res://environment/levels/island/under_water_environment.tres" id="4_underwater"]
 
 [node name="GDWaterKartPlayerTest" type="Node3D" unique_id=1397201267 groups=["player"]]
@@ -27,9 +27,14 @@ current = true
 fov = 90.0
 
 [node name="Kart" parent="." unique_id=1228751165 instance=ExtResource("3_kart")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.06733227, 2.5403988, 0)
 collision_mask = 63
 floor_max_angle = 1.0472
 roll_resistance = 0.6
 max_steering_angle_fast = 6.0
 drift_steering_multiplier = 1.5
+
+[node name="CollisionPolygon3D" type="CollisionPolygon3D" parent="Kart" unique_id=227080963]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.3338962)
+depth = 27.64
+polygon = PackedVector2Array(3.0642834, 0.6635499, 3.5713596, 0.4100113, 3.740385, -0.14777303, 3.706581, -1.7535164, 3.6558743, -2.3789115, 1.9166366, -2.762981, 1.4687576, -2.0292828, 1.1522751, -1.7746419, -0.42866874, -1.8469515, -1.9444106, -1.7841227, -2.3842113, -2.161095, -2.6964412, -2.869598, -3.1534448, -2.722582, -3.443203, -2.683158, -4.4911633, -2.4296188, -4.558773, -0.8745835, -4.592579, -0.012552738, -4.3897476, 0.39310884, -3.8995724, 0.47762156, -3.443203, 0.629745)

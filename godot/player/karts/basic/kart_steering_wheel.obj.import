@@ -4,14 +4,14 @@ importer="wavefront_obj"
 importer_version=1
 type="Mesh"
 uid="uid://31lad5bk4p7r"
-path="res://.godot/imported/kart_steering_wheel.obj-a8284c9230b7a98d10f13ca01c83f077.mesh"
+path="res://.godot/imported/kart_steering_wheel.obj-4ab6904315ed9a92048c3309616c20ae.mesh"
 
 [deps]
 
-files=["res://.godot/imported/kart_steering_wheel.obj-a8284c9230b7a98d10f13ca01c83f077.mesh"]
+files=["res://.godot/imported/kart_steering_wheel.obj-4ab6904315ed9a92048c3309616c20ae.mesh"]
 
-source_file="res://player/karts/basic/kart_steering_wheel.obj"
-dest_files=["res://.godot/imported/kart_steering_wheel.obj-a8284c9230b7a98d10f13ca01c83f077.mesh", "res://.godot/imported/kart_steering_wheel.obj-a8284c9230b7a98d10f13ca01c83f077.mesh"]
+source_file="res://Player/karts/basic/kart_steering_wheel.obj"
+dest_files=["res://.godot/imported/kart_steering_wheel.obj-4ab6904315ed9a92048c3309616c20ae.mesh", "res://.godot/imported/kart_steering_wheel.obj-4ab6904315ed9a92048c3309616c20ae.mesh"]
 
 [params]
 
