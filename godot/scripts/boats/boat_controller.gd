@@ -1,7 +1,7 @@
 #Boat was connected to the boat_controller.gd, switch to prototype variant for now
 
 extends RigidBody3D
-class_name BoatController
+class_name BoatControllerPrototype
 
 @export var control_enabled: bool = false
 @export var water_path: NodePath

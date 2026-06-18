@@ -6,7 +6,7 @@ extends Node3D
 @onready var n_buoys: CanvasLayer = $n_buoys
 @onready var buoy_coordinates: CanvasLayer = $buoy_coordinates
 @onready var player: CharacterBody3D = $Player
-@onready var boat: BoatControllerPrototype = $Boat
+@onready var boat: BoatController = $Boat
 @export var debug_load_buoys_from_file := true
 @export var debug_buoy_file_path := "res://Level1/defaultCords.txt"
 var debug_buoy_names: Array[String] = []
